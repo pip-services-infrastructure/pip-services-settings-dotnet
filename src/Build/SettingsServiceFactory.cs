@@ -6,6 +6,7 @@ using PipServices.Commons.Build;
 using PipServices.Commons.Refer;
 using PipServices.Settings.Logic;
 using PipServices.Settings.Persistence;
+using PipServices.Settings.Services.Version1;
 
 namespace PipServices.Settings.Build
 {
