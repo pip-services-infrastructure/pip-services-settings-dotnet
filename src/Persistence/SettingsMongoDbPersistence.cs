@@ -30,59 +30,55 @@ namespace PipServices.Settings.Persistence
             return filter;
         }
 
-        private static ConfigParams mapToPublic(ConfigParams map)
+        
+        public async Task<SettingParamsV1> GetOneByIdAsync(string correlationId, string id)
         {
-
-            return map;
+            return await base.GetOneByIdAsync(correlationId, id);
         }
 
-        private static string fieldFromPublic(string field)
+        public async Task<DataPage<SettingParamsV1>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging)
         {
-            if (field == null) return null;
-            field = field.Replace(".", "_dot_");
-            return field;
+            return await base.GetPageByFilterAsync(correlationId, ComposeFilter(filter), paging);
         }
 
-        private static ConfigParams mapFromPublic(ConfigParams map)
+        public async Task<SettingParamsV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
         {
-            if (map == null) return null;
 
-            return map;
+            SettingParamsV1 item = new SettingParamsV1(id);
+            item.update_time = new DateTime();
+
+            // Update parameters
+            if (updateParams != null)
+            {
+                foreach (var key in updateParams)
+                {
+                    if (updateParams.GetType().GetProperty(key.Key) != null)
+                        item.parameters[key.Key] = updateParams[key.Value];
+                }
+            }
+
+            // Increment parameters
+            if (incrementParams != null)
+            {
+                foreach (var key in incrementParams)
+                {
+                    if (incrementParams.GetType().GetProperty(key.Key) != null)
+                    {
+                        long increment = Convert.ToInt64(incrementParams[key.Key], 0);
+                        long value = Convert.ToInt64(item.parameters[key.Key], 0);
+                        value += increment;
+                        item.parameters[key.Key] = value.ToString();
+                    }
+                }
+            }
+
+            return await base.UpdateAsync(correlationId, item);
         }
 
-        // Convert object to JSON format
-        protected Object convertToPublic(SettingParamsV1 value)
+        public async Task<SettingParamsV1> SetAsync(string correlationId, SettingParamsV1 item)
         {
-            if (value == null) return null;
-
-            ConfigParams parameters = SettingsMongoDbPersistence.mapToPublic(value.parameters);
-            parameters = ConfigParams.FromValue(parameters);
-
-            value = new SettingParamsV1(value.Id, parameters);
-            value.update_time = value.update_time;
-
-            return value;
-        }
-
-
-        public Task<SettingParamsV1> GetOneById(string correlationId, string id)
-        {
-            return base.GetOneByIdAsync(correlationId, id);
-        }
-
-        public Task<DataPage<SettingParamsV1>> GetPageByFilter(string correlationId, FilterParams filter, PagingParams paging)
-        {
-            return base.GetPageByFilterAsync(correlationId, ComposeFilter(filter), paging);
-        }
-
-        public Task<SettingParamsV1> Modify(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<SettingParamsV1> Set(string correlationId, SettingParamsV1 item)
-        {
-            throw new NotImplementedException();
+            item.update_time = new DateTime();
+            return await base.SetAsync(correlationId, item);
         }
     }
 }
