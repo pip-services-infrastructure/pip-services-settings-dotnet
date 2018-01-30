@@ -36,27 +36,27 @@ namespace PipServices.Settings.Persistence
             return result;
         }
 
-        public Task<DataPage<SettingParamsV1>> GetPageByFilter(string correlationId, FilterParams filter, PagingParams paging)
+        public async Task<DataPage<SettingParamsV1>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging)
         {
-            return base.GetPageByFilterAsync(correlationId, ComposeFilter(filter), paging);
+            return await base.GetPageByFilterAsync(correlationId, ComposeFilter(filter), paging);
         }
 
-        public Task<SettingParamsV1> GetOneById(string correlationId, string id)
+        public async Task<SettingParamsV1> GetOneByIdAsync(string correlationId, string id)
         {
             FilterParams filter = new FilterParams();
             filter.Add("id", id);
 
-            return base.GetOneRandomAsync(correlationId, ComposeFilter(filter));
+            return await base.GetOneRandomAsync(correlationId, ComposeFilter(filter));
         }
 
-        public Task<SettingParamsV1> Set(string correlationId, SettingParamsV1 item)
+        public async Task<SettingParamsV1> Set(string correlationId, SettingParamsV1 item)
         {
             item.update_time = new DateTime();
 
-            return base.SetAsync(correlationId, item);
+            return await base.SetAsync(correlationId, item);
         }
 
-        public Task<SettingParamsV1> Modify(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
+        public async Task<SettingParamsV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
         {
 
             int index = this._items.FindIndex(x => x.Id == id);
@@ -89,7 +89,7 @@ namespace PipServices.Settings.Persistence
                 }
             }
 
-            return Task.FromResult(item);
+            return item;
         }
     }
 

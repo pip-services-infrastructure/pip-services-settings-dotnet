@@ -11,12 +11,12 @@ namespace PipServices.Settings.Persistence
 {
     interface ISettingsPersistence
     {
-        Task<DataPage<SettingParamsV1>> GetPageByFilter(string correlationId, FilterParams filter, PagingParams paging);
+        Task<DataPage<SettingParamsV1>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging);
 
-        Task<SettingParamsV1> GetOneById(string correlationId, string id);
+        Task<SettingParamsV1> GetOneByIdAsync(string correlationId, string id);
     
-        Task<SettingParamsV1> Set(string correlationId, SettingParamsV1 item);
+        Task<SettingParamsV1> SetAsync(string correlationId, SettingParamsV1 item);
 
-        Task<SettingParamsV1> Modify(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams);
+        Task<SettingParamsV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams);
     }
 }
