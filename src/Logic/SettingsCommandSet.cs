@@ -18,15 +18,14 @@ namespace PipServices.Settings.Logic
         {
             _logic = logic;
 
-            AddCommand(makeGetSectionIdsCommand());
+            AddCommand(MakeGetSectionIdsCommand());
+            AddCommand(MakeGetSectionsCommand());
+            AddCommand(MakeGetSectionByIdCommand());
+            AddCommand(MakeSetSectionCommand());
+            AddCommand(MakeModifySectionCommand());
         }
 
-        private void AddCommand(ICommand command)
-        {
-            throw new NotImplementedException();
-        }
-
-        private ICommand makeGetSectionIdsCommand()
+        private ICommand MakeGetSectionIdsCommand()
         {
             return new Command(
                 "get_section_ids",
@@ -37,74 +36,79 @@ namespace PipServices.Settings.Logic
                 {
                     FilterParams filter = FilterParams.FromValue(args.Get("filter"));
                     PagingParams paging = PagingParams.FromValue(args.Get("paging"));
-                    return await _logic.getSectionIds(correlationId, filter, paging);
+                    return await _logic.GetSectionIdsAsync(correlationId, filter, paging);
                 });
         }
 
-        private ICommand makeGetSectionsCommand() {
-		return new Command(
-			"get_sections",
+        private ICommand MakeGetSectionsCommand()
+        {
+            return new Command(
+                "get_sections",
 
-            new ObjectSchema()
-				.WithOptionalProperty("filter", new FilterParamsSchema())
-				.WithOptionalProperty("paging", new PagingParamsSchema()),
-			async (correlationId, args) => 
-            {
-                FilterParams filter = FilterParams.FromValue(args.Get("filter"));
-                PagingParams paging = PagingParams.FromValue(args.Get("paging"));
+                new ObjectSchema()
+                    .WithOptionalProperty("filter", new FilterParamsSchema())
+                    .WithOptionalProperty("paging", new PagingParamsSchema()),
+                async (correlationId, args) =>
+                {
+                    FilterParams filter = FilterParams.FromValue(args.Get("filter"));
+                    PagingParams paging = PagingParams.FromValue(args.Get("paging"));
 
-                return await _logic.getSections(correlationId, filter, paging);
-			}
-		);
-	}
+                    return await _logic.GetSectionsAsync(correlationId, filter, paging);
+                }
+            );
+        }
 
-    private ICommand makeGetSectionByIdCommand() {
-		return new Command(
-			"get_section_by_id",
+        private ICommand MakeGetSectionByIdCommand()
+        {
+            return new Command(
+                "get_section_by_id",
 
-            new ObjectSchema()
-				.WithRequiredProperty("id", TypeCode.String),
-            async (correlationId, args) => 
-            {
-                String Id = args.GetAsNullableString("id");
-                return await _logic.getSectionById(correlationId, Id);
-            }
-		);
-	}
+                new ObjectSchema()
+                    .WithRequiredProperty("id", TypeCode.String),
+                async (correlationId, args) =>
+                {
+                    String Id = args.GetAsNullableString("id");
+                    return await _logic.GetSectionByIdAsync(correlationId, Id);
+                }
+            );
+        }
 
-	private ICommand makeSetSectionCommand() {
-		return new Command(
-			"set_section",
+        private ICommand MakeSetSectionCommand()
+        {
+            return new Command(
+                "set_section",
 
-            new ObjectSchema()
-				.WithRequiredProperty("id", TypeCode.String)
-				.WithRequiredProperty("parameters", TypeCode.Object),
-            async (correlationId, args) => 
-            {
-                String id = args.GetAsNullableString("id");
-                var parameters = ConfigParams.FromValue(args.GetAsObject("parameters"));
-                return await _logic.setSection(correlationId, id, parameters);
-            }
-		);
-	}
+                new ObjectSchema()
+                    .WithRequiredProperty("id", TypeCode.String)
+                    .WithRequiredProperty("parameters", TypeCode.Object),
+                async (correlationId, args) =>
+                {
+                    String id = args.GetAsNullableString("id");
+                    ConfigParams parameters = ConfigParams.FromValue(args.GetAsObject("parameters"));
+                    return await _logic.SetSectionAsync(correlationId, id, parameters);
+                }
+            );
+        }
 
-	private makeModifySectionCommand() : ICommand {
-		return new Command(
-			"modify_section",
+        private ICommand MakeModifySectionCommand()
+        {
+            return new Command(
+                "modify_section",
 
-            new ObjectSchema(true)
-				.withRequiredProperty('id', TypeCode.String)
-				.withOptionalProperty('update_parameters', TypeCode.Map)
-				.withOptionalProperty('increment_parameters', TypeCode.Map),
-            (correlationId: string, args: Parameters, callback: (err: any, result: any) => void) => {
-                var id = args.getAsNullableString("id");
-var updateParams = ConfigParams.fromValue(args.getAsObject("update_params"));
-var incrementParams = ConfigParams.fromValue(args.getAsObject("increment_params"));
-                this._logic.modifySection(correlationId, id, updateParams, incrementParams, callback);
-            }
-		);
-	}
+                new ObjectSchema()
+                    .WithRequiredProperty("id", TypeCode.String)
+                    .WithOptionalProperty("update_parameters", TypeCode.Object)
+                    .WithOptionalProperty("increment_parameters", TypeCode.Object),
+                async (correlationId, args) =>
+                {
+                    string id = args.GetAsNullableString("id");
+                    ConfigParams updateParams = ConfigParams.FromValue(args.GetAsObject("update_params"));
+                    ConfigParams incrementParams = ConfigParams.FromValue(args.GetAsObject("increment_params"));
+                    return await _logic.ModifySectionAsync(correlationId, id, updateParams, incrementParams);
+                }
+            );
+        }
 
-       
+
     }
 }
