@@ -76,7 +76,9 @@ namespace PipServices.Settings.Logic
 
         public Task<ConfigParams> setSection(string correlationId, string id, ConfigParams parameters)
         {
-            return Task.FromResult(_persistence.Set(correlationId, id, parameters).Result.parameters);
+            SettingParamsV1 item = new SettingParamsV1(id, parameters);
+            Task<SettingParamsV1> settings = _persistence.Set(correlationId, item);
+            return Task.FromResult(_persistence.Set(correlationId, item).Result.parameters);
         }
 
         public Task<ConfigParams> modifySection(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
