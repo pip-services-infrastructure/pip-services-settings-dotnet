@@ -42,6 +42,49 @@ namespace PipServices.Settings.Logic
             return _commandSet ?? (_commandSet = new SettingsCommandSet(this));
         }
 
+        public Task<DataPage<string>> getSectionIds(string correlationId, FilterParams filter, PagingParams paging)
+        {
+            Task<DataPage<SettingParamsV1>> page = _persistence.GetPageByFilter(correlationId, filter, paging);
+            page.Wait();
+            if (page.Result != null)
+            {
+
+                List<string> data = page.Result.Data.Select(d => d.Id).ToList<string>();
+                var result = new DataPage<string>(data, page.Result.Total);
+                return Task.FromResult(result);
+            }
+            return Task.FromResult(new DataPage<string>());   
+        }
+
+        public Task<DataPage<SettingParamsV1>> getSections(string correlationId, FilterParams filter, PagingParams paging)
+        {
+            return _persistence.GetPageByFilter(correlationId, filter, paging);
+        }
+
+        public Task<ConfigParams> getSectionById(string correlationId, string id)
+        {
+            Task<SettingParamsV1> item = _persistence.GetOneById(correlationId, id);
+            item.Wait();
+            //if (item.) callback(err, null);
+
+            ConfigParams parameters = item != null ? item.Result.parameters : null;
+            parameters = parameters != null ? parameters : new ConfigParams();
+
+            return Task.FromResult(parameters);
+
+        }
+
+        public Task<ConfigParams> setSection(string correlationId, string id, ConfigParams parameters)
+        {
+            return Task.FromResult(_persistence.Set(correlationId, id, parameters).Result.parameters);
+        }
+
+        public Task<ConfigParams> modifySection(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
+        {
+            return Task.FromResult(_persistence.Modify(correlationId, id, updateParams, incrementParams).Result.parameters);
+        }
+
+        /*
         public void getSectionIds(string correlationId, FilterParams filter, PagingParams paging, SectionIdsDelegat callback)
         {
             Task<DataPage<SettingParamsV1>> page =  _persistence.GetPageByFilter(correlationId, filter, paging);
@@ -88,6 +131,6 @@ namespace PipServices.Settings.Logic
             Task<SettingParamsV1> settings = _persistence.Modify(correlationId, id, updateParams, incrementParams);
             settings.Wait();
             callback(null, settings.Result.parameters);
-        }
+        }*/
     }
 }

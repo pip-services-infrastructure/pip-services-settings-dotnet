@@ -16,7 +16,7 @@ namespace PipServices.Settings.Logic
 
 
         CommandSet GetCommandSet();
-        void getSectionIds(string correlationId, FilterParams filter, PagingParams paging, SectionIdsDelegat callback);
+       /* void getSectionIds(string correlationId, FilterParams filter, PagingParams paging, SectionIdsDelegat callback);
 
         void getSections(string correlationId, FilterParams filter, PagingParams paging, SectionsDelegat callback);
 
@@ -26,8 +26,8 @@ namespace PipServices.Settings.Logic
 
         void modifySection(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams, SectionDelegat callback);
 
-
-        /*
+        */
+        
         Task<DataPage<string>> getSectionIds(string correlationId, FilterParams filter, PagingParams paging);
         Task<DataPage<SettingParamsV1>> getSections(string correlationId, FilterParams filter, PagingParams paging);
         Task<ConfigParams> getSectionById(string correlationId, string id);
