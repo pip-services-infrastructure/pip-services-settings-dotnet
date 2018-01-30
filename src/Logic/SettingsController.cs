@@ -3,6 +3,7 @@ using PipServices.Commons.Config;
 using PipServices.Commons.Data;
 using PipServices.Commons.Refer;
 using PipServices.Settings.Data.Version1;
+using System.Linq;
 using PipServices.Settings.Persistence;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace PipServices.Settings.Logic
 {
-    class SettingsController : ISettingsController
+    public class SettingsController : ISettingsController
     {
         private static ConfigParams _defaultConfig = ConfigParams.FromTuples(
             "dependencies.persistence", "pip-services-settings:persistence:*:*:1.0"
@@ -20,6 +21,10 @@ namespace PipServices.Settings.Logic
         private DependencyResolver _dependencyResolver = new DependencyResolver(SettingsController._defaultConfig);
         private ISettingsPersistence _persistence;
         private SettingsCommandSet _commandSet;
+
+        public delegate void SectionIdsDelegat(Object err, DataPage<string> page);
+        public delegate void SectionsDelegat(Object err, DataPage<SettingParamsV1> page);
+        public delegate void SectionDelegat(Object err, ConfigParams parameters);
 
         public SettingsController()
         {
@@ -32,77 +37,57 @@ namespace PipServices.Settings.Logic
             _persistence = _dependencyResolver.GetOneRequired<ISettingsPersistence>("persistence");
         }
 
-        public SettingsCommandSet getCommandSet()
+        public CommandSet GetCommandSet()
         {
-            if (_commandSet == null)
-                _commandSet = new SettingsCommandSet(this);
-            return _commandSet;
+            return _commandSet ?? (_commandSet = new SettingsCommandSet(this));
         }
 
-        public void getSectionIds(string correlationId, FilterParams filter, PagingParams paging,
-           (Object err, DataPage<string> page) callback)
+        public void getSectionIds(string correlationId, FilterParams filter, PagingParams paging, SectionIdsDelegat callback)
         {
-            _persistence.getPageByFilter(correlationId, filter, paging, (err, page) =>
+            Task<DataPage<SettingParamsV1>> page =  _persistence.GetPageByFilter(correlationId, filter, paging);
+            page.Wait();
+            if (page.Result != null)
             {
-                if (page != null)
-                {
-                    let data = _.map(page.data, d => d.id);
-                    let result = new DataPage<string>(data, page.total);
-                    callback(err, result);
-                }
-                else
-                {
-                    callback(err, null);
-                }
-            });
+               
+                List<string> data =  page.Result.Data.Select(d => d.Id).ToList<string>();
+                var result = new DataPage<string>(data, page.Result.Total);
+                callback(new Object(), result);
+            }
         }
 
-        public void getSections(string correlationId, FilterParams filter, PagingParams paging,
-            (Object err, DataPage<SettingParamsV1> page) callback)
+        public void getSections(string correlationId, FilterParams filter, PagingParams paging, SectionsDelegat callback)
         {
-            _persistence.getPageByFilter(correlationId, filter, paging, callback);
+            Task<DataPage<SettingParamsV1>> page = _persistence.GetPageByFilter(correlationId, filter, paging);
+            page.Wait();
+            callback(null, page.Result);
         }
 
-        public void getSectionById(string correlationId, string id,
-            (Object err, ConfigParams parameters) callback)
+        public void getSectionById(string correlationId, string id, SectionDelegat callback)
         {
-            _persistence.getOneById(correlationId, id, (err, item) =>
-            {
-                if (err) callback(err, null);
-                else
-                {
-                    let parameters = item != null ? item.parameters : null;
-                    parameters = parameters || new ConfigParams();
-                    callback(null, parameters);
-                }
-            });
+            Task<SettingParamsV1> item = _persistence.GetOneById(correlationId, id);
+            item.Wait();
+                //if (item.) callback(err, null);
+    
+            ConfigParams parameters = item != null ? item.Result.parameters : null;
+                parameters =  parameters != null ? parameters : new ConfigParams();
+            callback(null, parameters);
+            
         }
 
-        public void setSection(string correlationId, string id, ConfigParams parameters,
-            (Object err, ConfigParams parameters) callback)
+        public void setSection(string correlationId, string id, ConfigParams parameters, SectionDelegat callback)
         {
             SettingParamsV1 item = new SettingParamsV1(id, parameters);
-            _persistence.set(correlationId, item, (err, itemBack) =>
-            {
-                if (callback)
-                {
-                    if (err) callback(err, null);
-                    else callback(null, itemBack.parameters);
-                }
-            });
+            Task<SettingParamsV1> settings = _persistence.Set(correlationId, item);
+            settings.Wait();
+            callback(null, settings.Result.parameters);
         }
 
-        public void modifySection(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams,
-           (Object err, ConfigParams parameters) callback)
+
+        public void modifySection(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams, SectionDelegat callback)
         {
-            _persistence.modify(correlationId, id, updateParams, incrementParams, (err, item) =>
-            {
-                if (callback)
-                {
-                    if (err) callback(err, null);
-                    else callback(null, item.parameters);
-                }
-            });
+            Task<SettingParamsV1> settings = _persistence.Modify(correlationId, id, updateParams, incrementParams);
+            settings.Wait();
+            callback(null, settings.Result.parameters);
         }
     }
 }

@@ -4,10 +4,11 @@ using PipServices.Commons.Validate;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static PipServices.Settings.Logic.SettingsController;
 
 namespace PipServices.Settings.Logic
 {
-    class SettingsCommandSet
+    class SettingsCommandSet : CommandSet
     {
 
         private ISettingsController _logic;
@@ -31,11 +32,12 @@ namespace PipServices.Settings.Logic
                 new ObjectSchema()
                  .WithOptionalProperty("filter", new FilterParamsSchema())
                  .WithOptionalProperty("paging", new PagingParamsSchema()),
-                async (correlationId, args) =>
+                (correlationId, args) =>
                 {
-                    var filter = FilterParams.FromValue(args.Get("filter"));
-                    var paging = PagingParams.FromValue(args.Get("paging"));
-                    return await _logic.getSectionIds(correlationId, filter, paging, callback);
+                    FilterParams filter = FilterParams.FromValue(args.Get("filter"));
+                    PagingParams paging = PagingParams.FromValue(args.Get("paging"));
+                    //SectionIdsDelegat callback = new SectionIdsDelegat(new Object(), new DataPage<string>());
+                    return  _logic.getSectionIds(correlationId, filter, paging, callback);
                 });
 
             /*
