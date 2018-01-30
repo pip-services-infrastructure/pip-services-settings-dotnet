@@ -51,17 +51,18 @@ namespace PipServices.Settings.Persistence
         }
 
         // Convert object to JSON format
-        protected Object convertToPublic(SettingParamsV1 value){
-        if (value == null) return null;
+        protected Object convertToPublic(SettingParamsV1 value)
+        {
+            if (value == null) return null;
 
-        ConfigParams parameters = SettingsMongoDbPersistence.mapToPublic(value.parameters);
-        parameters = ConfigParams.FromValue(parameters);
+            ConfigParams parameters = SettingsMongoDbPersistence.mapToPublic(value.parameters);
+            parameters = ConfigParams.FromValue(parameters);
 
             value = new SettingParamsV1(value.Id, parameters);
             value.update_time = value.update_time;
 
-        return value;
-    }
+            return value;
+        }
 
 
         public Task<SettingParamsV1> GetOneById(string correlationId, string id)
