@@ -30,7 +30,7 @@ namespace PipServices.Settings.Persistence
             return filter;
         }
 
-        private static Object mapToPublic(Array map)
+        private static ConfigParams mapToPublic(ConfigParams map)
         {
 
             return map;
@@ -43,12 +43,25 @@ namespace PipServices.Settings.Persistence
             return field;
         }
 
-        private static Object mapFromPublic(Object map)
+        private static ConfigParams mapFromPublic(ConfigParams map)
         {
             if (map == null) return null;
 
             return map;
         }
+
+        // Convert object to JSON format
+        protected Object convertToPublic(SettingParamsV1 value){
+        if (value == null) return null;
+
+        ConfigParams parameters = SettingsMongoDbPersistence.mapToPublic(value.parameters);
+        parameters = ConfigParams.FromValue(parameters);
+
+            value = new SettingParamsV1(value.Id, parameters);
+            value.update_time = value.update_time;
+
+        return value;
+    }
 
 
         public Task<SettingParamsV1> GetOneById(string correlationId, string id)
