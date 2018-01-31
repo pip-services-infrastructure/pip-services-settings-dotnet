@@ -21,6 +21,8 @@ namespace PipServices.Settings.Persistence
             return (item.Id != null && item.Id.Contains(search)) ? true : false;
         }
 
+        public int ItemsCount { get { return _items.Count; } }
+
         private IList<Func<SettingParamsV1, bool>> ComposeFilter(FilterParams filter)
         {
             var result = new List<Func<SettingParamsV1, bool>>();
@@ -49,7 +51,7 @@ namespace PipServices.Settings.Persistence
             return await base.GetOneRandomAsync(correlationId, ComposeFilter(filter));
         }
 
-        public async Task<SettingParamsV1> Set(string correlationId, SettingParamsV1 item)
+        public async Task<SettingParamsV1> SetAync(string correlationId, SettingParamsV1 item)
         {
             item.UpdateTime = new DateTime();
 

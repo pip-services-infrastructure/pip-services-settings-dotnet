@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace test
+namespace PipServices.Settings
 {
-    public abstract class AbstactTest : IDisposable
+    public abstract class AbstractTest : IDisposable
     {
-        protected AbstactTest()
+        protected AbstractTest()
         {
             Initialize();
         }

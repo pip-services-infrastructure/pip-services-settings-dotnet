@@ -30,7 +30,6 @@ namespace PipServices.Settings
                 }));
 
 
-
             FilterParams = new FilterParams();
             PagingParams = new PagingParams();
         }
