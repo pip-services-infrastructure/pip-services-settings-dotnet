@@ -1,7 +1,9 @@
 ﻿using Moq;
 using PipServices.Commons.Config;
 using PipServices.Commons.Convert;
+using PipServices.Commons.Data;
 using PipServices.Commons.Refer;
+using PipServices.Settings.Data.Version1;
 using PipServices.Settings.Logic;
 using PipServices.Settings.Persistence;
 using PipServices.Settings.Services.Version1;
@@ -15,160 +17,139 @@ using Xunit;
 
 namespace PipServices.Settings.Services
 {
-    public class SettingsHttpServiceV1Test : AbstractTest
+    public class SettingsHttpServiceV1Test : IDisposable
     {
+        private static SettingParamsV1 SETTING1 = CreateSetting("1", new ConfigParams());
+        private static SettingParamsV1 SETTING2 = CreateSetting("2", new ConfigParams(new Dictionary<string, string>(){
+                    { "param", "0"}
+                }));
+
+        private SettingsMemoryPersistence _persistence;
+        private SettingsController _controller;
         private SettingsHttpServiceV1 _service;
 
-        private ISettingsController _settingsController;
-        private ISettingsPersistence _settingsPersistence;
-
-        private Mock<ISettingsController> _moqSettingsController;
-        private Mock<ISettingsPersistence> _moqSettingsPersistence;
-
-        ConfigParams _restConfig = ConfigParams.FromTuples(
-            "connection.protocol", "http",
-            "connection.host", "localhost",
-            "connection.port", 3001 // another port for this test!
-        );
-
-        private TestModel Model { get; set; }
-
-        protected override void Initialize()
+        public SettingsHttpServiceV1Test()
         {
-            Model = new TestModel();
+            _persistence = new SettingsMemoryPersistence();
+            _controller = new SettingsController();
 
-            _moqSettingsController = new Mock<ISettingsController>();
-            _settingsController = _moqSettingsController.Object;
-
-            _moqSettingsController.Setup(c => c.GetCommandSet()).Returns(new SettingsCommandSet(_settingsController));
-
-            _moqSettingsPersistence = new Mock<ISettingsPersistence>();
-            _settingsPersistence = _moqSettingsPersistence.Object;
-
+            var config = ConfigParams.FromTuples(
+                "connection.protocol", "http",
+                "connection.host", "localhost",
+                "connection.port", "3000"
+            );
             _service = new SettingsHttpServiceV1();
-            _service.Configure(_restConfig);
+            _service.Configure(config);
 
             var references = References.FromTuples(
-                new Descriptor("pip-services-settings", "persistence", "memory", "default", "1.0"), _settingsPersistence,
-                new Descriptor("pip-services-settings", "controller", "default", "default", "1.0"), _settingsController,
+                new Descriptor("pip-services-settings", "persistence", "memory", "default", "1.0"), _persistence,
+                new Descriptor("pip-services-settings", "controller", "default", "default", "1.0"), _controller,
                 new Descriptor("pip-services-settings", "service", "http", "default", "1.0"), _service
             );
-            _service.SetReferences(references);
 
-            Task.Run(() => _service.OpenAsync(Model.CorrelationId));
+            _controller.SetReferences(references);
+            _service.SetReferences(references);
+            //_service.OpenAsync(null).Wait();
+
+            // Todo: This is defect! Open shall not block the tread
+            Task.Run(() => _service.OpenAsync(null));
             Thread.Sleep(1000); // Just let service a sec to be initialized
         }
 
-        protected override void Uninitialize()
+        public void Dispose()
         {
-            _service.CloseAsync(null);
+            _service.CloseAsync(null).Wait();
         }
 
-        [Fact] // Just ONE test to avoid issues with re-opening service on the same host
-        public void It_Should_Perform_CRUD_Operations()
+        private static SettingParamsV1 CreateSetting(string id, ConfigParams p)
         {
-            It_Should_Be_Opened();
-
-            It_Should_Create_Setting_Async();
-
-            It_Should_Update_Setting_Async();
-
-            It_Should_Delete_Setting_Async();
-
-            It_Should_Get_Setting_Async();
-
-            It_Should_Get_Settings_Async();
+            SettingParamsV1 setting = new SettingParamsV1();
+            setting.Id = id;
+            setting.Parameters = p;
+            return setting;
         }
 
-        public void It_Should_Be_Opened()
+        [Fact]
+        public async Task TestCrudOperationsAsync()
         {
-            Assert.True(_service.IsOpened());
+            // Create one setting
+            SettingParamsV1 setting1 = await Invoke<SettingParamsV1>("/settings/set_section", new { quote = SETTING1 });
+
+            Assert.NotNull(setting1);
+            Assert.Equal(SETTING1.Id, setting1.Id);
+
+            // Create another setting
+            SettingParamsV1 setting2 = await Invoke<SettingParamsV1>("/settings/set_section", new { quote = SETTING2 });
+
+            Assert.NotNull(setting2);
+            Assert.Equal(SETTING2.Id, setting2.Id);
+
+            // Get all settings
+            DataPage<SettingParamsV1> page = await Invoke<DataPage<SettingParamsV1>>("/settings/get_sections", new { });
+            Assert.NotNull(page);
+            Assert.NotNull(page.Data);
+            Assert.Equal(2, page.Data.Count);
+
+            //Get all sections ids 
+            List<string> idsActual = new List<string>();
+            idsActual.Add(SETTING1.Id);
+            idsActual.Add(SETTING2.Id);
+
+            DataPage<string> ids = await Invoke<DataPage<string>>("/settings/get_section_ids", new { });
+            Assert.NotNull(ids);
+            Assert.NotNull(ids.Data);
+            Assert.Equal(2, page.Data.Count);
+            Assert.Equal(idsActual, ids.Data);
+
+            // Update the setting
+            ConfigParams param = new ConfigParams();
+            param["newKey"] = "text";
+            SettingParamsV1 setting = await _persistence.ModifyAsync(
+                null,
+                setting1.Id,
+                param,
+                null
+            );
+
+            Assert.NotNull(setting);
+            Assert.Equal(setting1.Id, setting.Id);
+            Assert.Equal(param, setting.Parameters);
+
+            param = new ConfigParams();
+            param["param"] = "5";
+            setting = await _persistence.ModifyAsync(
+                null,
+                setting2.Id,
+                null,
+                param
+            );
+
+            Assert.NotNull(setting);
+            Assert.Equal(setting2.Id, setting.Id);
+            Assert.Equal(param, setting.Parameters);
+
+            // Delete the setting
+            await _persistence.DeleteByIdAsync(null, setting1.Id);
+
+            // Try to get deleted setting
+            setting = await Invoke<SettingParamsV1>("/settings/delete_setting_by_id", new { id = setting1.Id });
+            Assert.Null(setting);
         }
 
-        public void It_Should_Create_Setting_Async()
-        {
-            var createCalled = false;
-            _moqSettingsController.Setup(c => c.SetSectionAsync(Model.CorrelationId, Model.SampleSetting1.Id, Model.SampleSetting1.Parameters)).Callback(() => createCalled = true);
-
-            SendPostRequest("create_setting", new
-            {
-                correlation_id = Model.CorrelationId,
-                setting = Model.SampleSetting1
-            });
-
-            Assert.True(createCalled);
-        }
-
-        public void It_Should_Update_Setting_Async()
-        {
-            var updateCalled = false;
-            _moqSettingsController.Setup(c => c.ModifySectionAsync(Model.CorrelationId, Model.SampleSetting1.Id, Model.SampleSetting1.Parameters, null)).Callback(() => updateCalled = true);
-
-            SendPostRequest("update_setting", new
-            {
-                correlation_id = Model.CorrelationId,
-                setting = Model.SampleSetting1
-            });
-
-            Assert.True(updateCalled);
-        }
-
-        public void It_Should_Delete_Setting_Async()
-        {
-            var deleteCalled = false;
-            _moqSettingsController.Setup(c => c.DeleteSectionByIdAsync(Model.CorrelationId, Model.SampleSetting1.Id)).Callback(() => deleteCalled = true);
-
-            SendPostRequest("delete_setting_by_id", new
-            {
-                correlation_id = Model.CorrelationId,
-                setting_id = Model.SampleSetting1.Id
-            });
-
-            Assert.True(deleteCalled);
-        }
-
-        public void It_Should_Get_Setting_Async()
-        {
-            var getCalled = false;
-            _moqSettingsController.Setup(c => c.GetSectionByIdAsync(Model.CorrelationId, Model.SampleSetting1.Id)).Callback(() => getCalled = true);
-
-            SendPostRequest("get_setting_by_id", new
-            {
-                correlation_id = Model.CorrelationId,
-                setting_id = Model.SampleSetting1.Id
-            });
-
-            Assert.True(getCalled);
-        }
-
-      
-
-        public void It_Should_Get_Settings_Async()
-        {
-            var getCalled = false;
-            _moqSettingsController.Setup(c => c.GetSectionsAsync(Model.CorrelationId, Model.FilterParams, Model.PagingParams)).Callback(() => getCalled = true);
-
-            SendPostRequest("get_settings", new
-            {
-                correlation_id = Model.CorrelationId,
-                filter = Model.FilterParams,
-                paging = Model.PagingParams
-            });
-
-            Assert.True(getCalled);
-        }
-
-        private static string SendPostRequest(string route, dynamic request)
+        private static async Task<T> Invoke<T>(string route, dynamic request)
         {
             using (var httpClient = new HttpClient())
             {
-                using (var content = new StringContent(JsonConverter.ToJson(request), Encoding.UTF8, "application/json"))
+                var requestValue = JsonConverter.ToJson(request);
+                using (var content = new StringContent(requestValue, Encoding.UTF8, "application/json"))
                 {
-                    var response = httpClient.PostAsync("http://localhost:3001/settings/" + route, content).Result;
-
-                    return response.Content.ReadAsStringAsync().Result;
+                    var response = await httpClient.PostAsync("http://localhost:3000" + route, content);
+                    var responseValue = response.Content.ReadAsStringAsync().Result;
+                    return JsonConverter.FromJson<T>(responseValue);
                 }
             }
         }
     }
-}
+
+
+    }

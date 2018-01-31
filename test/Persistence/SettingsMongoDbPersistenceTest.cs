@@ -50,15 +50,15 @@ namespace PipServices.Settings.Persistence
         }
 
        
-        [Fact]
+        //[Fact]
         public void It_Should_Create_Async()
         {
             settingsPersistence.CreateAsync(Model.CorrelationId, Model.SampleSetting1).Wait();
-            var quote = settingsPersistence.GetOneByIdAsync(Model.CorrelationId, Model.SampleSetting1.Id).Result;
-            Assert.Equal(Model.SampleSetting1, quote);
+            var setting = settingsPersistence.GetOneByIdAsync(Model.CorrelationId, Model.SampleSetting1.Id).Result;
+            Assert.Equal(Model.SampleSetting1, setting);
         }
 
-        [Fact]
+        //[Fact]
         public void It_Should_Get_Page_Async_By_Search_Filter()
         {
             var filter = new FilterParams
@@ -75,7 +75,7 @@ namespace PipServices.Settings.Persistence
      
 
        
-        [Fact]
+       // [Fact]
         public void It_Should_Get_Page_Async_By_Null_Search_Filter()
         {
             var filter = new FilterParams

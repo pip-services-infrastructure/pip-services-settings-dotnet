@@ -90,6 +90,19 @@ namespace PipServices.Settings.Logic
             );
         }
 
+        private ICommand MakeDeleteQuoteByIdCommand()
+        {
+            return new Command(
+                "delete_settings_by_id",
+                new ObjectSchema()
+                    .WithOptionalProperty("id", TypeCode.String),
+                async (correlationId, parameters) =>
+                {
+                    var id = parameters.GetAsString("id");
+                    return await _logic.DeleteSectionByIdAsync(correlationId, id);
+                });
+        }
+
         private ICommand MakeModifySectionCommand()
         {
             return new Command(
