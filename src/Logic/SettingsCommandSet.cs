@@ -9,7 +9,7 @@ using PipServices.Settings.Logic;
 
 namespace PipServices.Settings.Logic
 {
-    class SettingsCommandSet : CommandSet
+    public class SettingsCommandSet : CommandSet
     {
 
         private ISettingsController _logic;

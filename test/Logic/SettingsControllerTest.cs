@@ -14,7 +14,7 @@ using PipServices.Commons.Config;
 
 namespace PipServices.Settings.Logic
 {
-    public class SettingsControllerTest : AbstractTest
+    public class SettingsControllerTest : AbstractTest, IDisposable
     {
         private SettingsController _settingsController;
 
@@ -60,9 +60,11 @@ namespace PipServices.Settings.Logic
             Boolean updateCalled = false;
             _moqSettingsPersistence.Setup(p => p.ModifyAsync(Model.CorrelationId, Model.SampleSetting2.Id, Model.SampleSetting1.Parameters, null)).Callback(() => updateCalled = true);
 
-            _settingsController.ModifySectionAsync(Model.CorrelationId, Model.SampleSetting2.Id, Model.SampleSetting1.Parameters, null);
+            ConfigParams result = _settingsController.ModifySectionAsync(Model.CorrelationId, Model.SampleSetting2.Id, Model.SampleSetting1.Parameters, null).Result;
 
             Assert.True(updateCalled);
+            Assert.Equal(result, Model.SampleSetting1.Parameters);
+
         }
 
         [Fact]
