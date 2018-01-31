@@ -61,7 +61,7 @@ namespace PipServices.Settings.Logic
         {
             SettingParamsV1 item = await _persistence.GetOneByIdAsync(correlationId, id);
 
-            ConfigParams parameters = item != null ? item.parameters : null;
+            ConfigParams parameters = item != null ? item.Parameters : null;
             parameters = parameters != null ? parameters : new ConfigParams();
 
             return parameters;
@@ -72,13 +72,13 @@ namespace PipServices.Settings.Logic
         {
             SettingParamsV1 item = new SettingParamsV1(id, parameters);
             SettingParamsV1 settings = await _persistence.SetAsync(correlationId, item);
-            return settings.parameters;
+            return settings.Parameters;
         }
 
         public async Task<ConfigParams> ModifySectionAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
         {
             SettingParamsV1 settings = await _persistence.ModifyAsync(correlationId, id, updateParams, incrementParams);
-            return settings.parameters;
+            return settings.Parameters;
         }
 
         

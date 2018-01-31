@@ -51,7 +51,7 @@ namespace PipServices.Settings.Persistence
 
         public async Task<SettingParamsV1> Set(string correlationId, SettingParamsV1 item)
         {
-            item.update_time = new DateTime();
+            item.UpdateTime = new DateTime();
 
             return await base.SetAsync(correlationId, item);
         }
@@ -70,7 +70,7 @@ namespace PipServices.Settings.Persistence
                 foreach (var key in updateParams)
                 {
                     if (updateParams.GetType().GetProperty(key.Key) != null)
-                        item.parameters[key.Key] = updateParams[key.Value];
+                        item.Parameters[key.Key] = updateParams[key.Value];
                 }
             }
 
@@ -82,9 +82,9 @@ namespace PipServices.Settings.Persistence
                     if (incrementParams.GetType().GetProperty(key.Key) != null)
                     {
                         long increment = Convert.ToInt64(incrementParams[key.Key], 0);
-                        long value = Convert.ToInt64(item.parameters[key.Key], 0);
+                        long value = Convert.ToInt64(item.Parameters[key.Key], 0);
                         value += increment;
-                        item.parameters[key.Key] = value.ToString();
+                        item.Parameters[key.Key] = value.ToString();
                     }
                 }
             }

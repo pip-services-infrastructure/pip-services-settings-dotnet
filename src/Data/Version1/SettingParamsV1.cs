@@ -2,9 +2,11 @@
 using PipServices.Commons.Data;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace PipServices.Settings.Data.Version1
 {
+    [DataContract]
     public class SettingParamsV1 : IStringIdentifiable
     {
         public SettingParamsV1() { }
@@ -12,20 +14,23 @@ namespace PipServices.Settings.Data.Version1
         public SettingParamsV1(string id, ConfigParams param)
         {
             this.Id = id;
-            this.parameters = param;
-            this.update_time = new DateTime();
+            this.Parameters = param;
+            this.UpdateTime = new DateTime();
         }
 
         public SettingParamsV1(string id)
         {
             this.Id = id;
-            this.parameters = new ConfigParams();
-            this.update_time = new DateTime();
+            this.Parameters = new ConfigParams();
+            this.UpdateTime = new DateTime();
         }
 
+        [DataMember(Name = "id")]
         public string Id { get; set; }
-        public ConfigParams parameters { set; get; }
-        public DateTime update_time { set; get; }
+        [DataMember(Name = "parameters")]
+        public ConfigParams Parameters { set; get; }
+        [DataMember(Name = "update_time")]
+        public DateTime UpdateTime { set; get; }
 
     }
 }

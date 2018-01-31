@@ -17,9 +17,9 @@ namespace PipServices.Settings.Persistence
         private FilterDefinition<SettingParamsV1> ComposeFilter(FilterParams filterParams)
         {
             filterParams = filterParams ?? new FilterParams();
-            var search = filterParams.GetAsNullableString("search");
+            string search = filterParams.GetAsNullableString("search");
 
-            var id = filterParams.GetAsNullableString("id");
+            string id = filterParams.GetAsNullableString("id");
 
 
             var builder = Builders<SettingParamsV1>.Filter;
@@ -45,7 +45,7 @@ namespace PipServices.Settings.Persistence
         {
 
             SettingParamsV1 item = new SettingParamsV1(id);
-            item.update_time = new DateTime();
+            item.UpdateTime = new DateTime();
 
             // Update parameters
             if (updateParams != null)
@@ -53,7 +53,7 @@ namespace PipServices.Settings.Persistence
                 foreach (var key in updateParams)
                 {
                     if (updateParams.GetType().GetProperty(key.Key) != null)
-                        item.parameters[key.Key] = updateParams[key.Value];
+                        item.Parameters[key.Key] = updateParams[key.Value];
                 }
             }
 
@@ -65,9 +65,9 @@ namespace PipServices.Settings.Persistence
                     if (incrementParams.GetType().GetProperty(key.Key) != null)
                     {
                         long increment = Convert.ToInt64(incrementParams[key.Key], 0);
-                        long value = Convert.ToInt64(item.parameters[key.Key], 0);
+                        long value = Convert.ToInt64(item.Parameters[key.Key], 0);
                         value += increment;
-                        item.parameters[key.Key] = value.ToString();
+                        item.Parameters[key.Key] = value.ToString();
                     }
                 }
             }
@@ -77,7 +77,7 @@ namespace PipServices.Settings.Persistence
 
         public async Task<SettingParamsV1> SetAsync(string correlationId, SettingParamsV1 item)
         {
-            item.update_time = new DateTime();
+            item.UpdateTime = new DateTime();
             return await base.SetAsync(correlationId, item);
         }
     }
