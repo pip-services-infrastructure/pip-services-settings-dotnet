@@ -10,9 +10,9 @@ namespace PipServices.Settings.Data.Version1
     {
         public SettingsV1Schema()
         {
-            WithOptionalProperty("id", TypeCode.String);
-            WithOptionalProperty("update_time", TypeCode.DateTime);
-            WithOptionalProperty("parameters", null); // Config Params 
+            WithOptionalProperty("Id", TypeCode.String);
+            WithOptionalProperty("UpdateTime", TypeCode.DateTime);
+            WithOptionalProperty("Parameters", null); // Config Params 
         }
     }
 }

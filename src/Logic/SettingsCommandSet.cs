@@ -2,10 +2,11 @@
 using PipServices.Commons.Data;
 using PipServices.Commons.Config;
 using PipServices.Commons.Validate;
-using System;
+
 using System.Collections.Generic;
 using System.Text;
 using PipServices.Settings.Logic;
+using PipServices.Commons.Convert;
 
 namespace PipServices.Settings.Logic
 {
@@ -67,7 +68,7 @@ namespace PipServices.Settings.Logic
                     .WithRequiredProperty("id", TypeCode.String),
                 async (correlationId, args) =>
                 {
-                    String Id = args.GetAsNullableString("id");
+                    string Id = args.GetAsNullableString("id");
                     return await _logic.GetSectionByIdAsync(correlationId, Id);
                 }
             );
@@ -80,10 +81,10 @@ namespace PipServices.Settings.Logic
 
                 new ObjectSchema()
                     .WithRequiredProperty("id", TypeCode.String)
-                    .WithRequiredProperty("parameters", TypeCode.Object),
+                    .WithRequiredProperty("parameters", null),
                 async (correlationId, args) =>
                 {
-                    String id = args.GetAsNullableString("id");
+                    string id = args.GetAsNullableString("id");
                     ConfigParams parameters = ConfigParams.FromValue(args.GetAsObject("parameters"));
                     return await _logic.SetSectionAsync(correlationId, id, parameters);
                 }
@@ -110,13 +111,13 @@ namespace PipServices.Settings.Logic
 
                 new ObjectSchema()
                     .WithRequiredProperty("id", TypeCode.String)
-                    .WithOptionalProperty("update_parameters", TypeCode.Object)
-                    .WithOptionalProperty("increment_parameters", TypeCode.Object),
+                    .WithOptionalProperty("update_parameters", null)
+                    .WithOptionalProperty("increment_parameters", null),
                 async (correlationId, args) =>
                 {
                     string id = args.GetAsNullableString("id");
-                    ConfigParams updateParams = ConfigParams.FromValue(args.GetAsObject("update_params"));
-                    ConfigParams incrementParams = ConfigParams.FromValue(args.GetAsObject("increment_params"));
+                    ConfigParams updateParams = ConfigParams.FromValue(args.GetAsObject("update_parameters"));
+                    ConfigParams incrementParams = ConfigParams.FromValue(args.GetAsObject("increment_parameters"));
                     return await _logic.ModifySectionAsync(correlationId, id, updateParams, incrementParams);
                 }
             );

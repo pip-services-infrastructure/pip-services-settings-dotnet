@@ -73,16 +73,16 @@ namespace PipServices.Settings.Services
         public async Task TestCrudOperationsAsync()
         {
             // Create one setting
-            SettingParamsV1 setting1 = await Invoke<SettingParamsV1>("/settings/set_section", new { quote = SETTING1 });
+            ConfigParams param = await Invoke<ConfigParams>("/settings/set_section", new { id = SETTING1.Id, parameters = SETTING1.Parameters  });
 
-            Assert.NotNull(setting1);
-            Assert.Equal(SETTING1.Id, setting1.Id);
+            Assert.NotNull(param);
+            Assert.Equal(SETTING1.Parameters, param);
 
             // Create another setting
-            SettingParamsV1 setting2 = await Invoke<SettingParamsV1>("/settings/set_section", new { quote = SETTING2 });
+            param = await Invoke<ConfigParams>("/settings/set_section", new { id = SETTING2.Id, parameters = SETTING2.Parameters });
 
-            Assert.NotNull(setting2);
-            Assert.Equal(SETTING2.Id, setting2.Id);
+            Assert.NotNull(param);
+            Assert.Equal(SETTING2.Parameters, param);
 
             // Get all settings
             DataPage<SettingParamsV1> page = await Invoke<DataPage<SettingParamsV1>>("/settings/get_sections", new { });
@@ -94,45 +94,31 @@ namespace PipServices.Settings.Services
             List<string> idsActual = new List<string>();
             idsActual.Add(SETTING1.Id);
             idsActual.Add(SETTING2.Id);
-
+            
             DataPage<string> ids = await Invoke<DataPage<string>>("/settings/get_section_ids", new { });
             Assert.NotNull(ids);
             Assert.NotNull(ids.Data);
             Assert.Equal(2, page.Data.Count);
             Assert.Equal(idsActual, ids.Data);
 
+            
             // Update the setting
-            ConfigParams param = new ConfigParams();
-            param["newKey"] = "text";
-            SettingParamsV1 setting = await _persistence.ModifyAsync(
-                null,
-                setting1.Id,
-                param,
-                null
-            );
+            ConfigParams updateParams = new ConfigParams();
+            updateParams["newKey"] = "text";
+            param = await Invoke<ConfigParams>("/settings/modify_section", new { id = SETTING1.Id, update_parameters = updateParams });
+           
+            Assert.NotNull(param);
+            Assert.Equal(updateParams, param);
+            
+            updateParams = new ConfigParams();
+            updateParams["param"] = "5";
+            param = await Invoke<ConfigParams>("/settings/modify_section", new { id = SETTING2.Id, increment_parameters = updateParams });
 
-            Assert.NotNull(setting);
-            Assert.Equal(setting1.Id, setting.Id);
-            Assert.Equal(param, setting.Parameters);
-
-            param = new ConfigParams();
-            param["param"] = "5";
-            setting = await _persistence.ModifyAsync(
-                null,
-                setting2.Id,
-                null,
-                param
-            );
-
-            Assert.NotNull(setting);
-            Assert.Equal(setting2.Id, setting.Id);
-            Assert.Equal(param, setting.Parameters);
-
-            // Delete the setting
-            await _persistence.DeleteByIdAsync(null, setting1.Id);
+            Assert.NotNull(param);
+            Assert.Equal(updateParams, param);
 
             // Try to get deleted setting
-            setting = await Invoke<SettingParamsV1>("/settings/delete_setting_by_id", new { id = setting1.Id });
+            SettingParamsV1 setting = await Invoke<SettingParamsV1>("/settings/delete_setting_by_id", new { id = SETTING2.Id });
             Assert.Null(setting);
         }
 

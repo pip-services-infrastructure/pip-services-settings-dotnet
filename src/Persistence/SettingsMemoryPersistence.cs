@@ -71,7 +71,6 @@ namespace PipServices.Settings.Persistence
             {
                 foreach (var key in updateParams)
                 {
-                    //if (updateParams.GetType().GetProperty(key.Key) != null)
                     item.Parameters[key.Key] = key.Value;
                 }
             }
