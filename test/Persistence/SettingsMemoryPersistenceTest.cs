@@ -46,8 +46,6 @@ namespace PipServices.Settings.Persistence
             Assert.Equal(settingsMemoryPersistence.ItemsCount, result.Data.Count);
         }
 
-      
-
         [Fact]
         public void It_Should_Get_Page_Async_By_Null_Search_Filter()
         {

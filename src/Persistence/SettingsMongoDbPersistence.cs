@@ -10,7 +10,7 @@ using PipServices.Settings.Data.Version1;
 
 namespace PipServices.Settings.Persistence
 {
-    class SettingsMongoDbPersistence : IdentifiableMongoDbPersistence<SettingParamsV1, string>, ISettingsPersistence
+    public class SettingsMongoDbPersistence : IdentifiableMongoDbPersistence<SettingParamsV1, string>, ISettingsPersistence
     {
         public SettingsMongoDbPersistence() : base("settings") { }
 
