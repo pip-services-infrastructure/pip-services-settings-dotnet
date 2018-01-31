@@ -14,110 +14,89 @@ using PipServices.Commons.Config;
 
 namespace PipServices.Settings.Logic
 {
-    public class SettingsControllerTest : AbstractTest, IDisposable
+    public class SettingsControllerTest {
+        private static SettingParamsV1 SETTING1 = CreateSetting("1", new ConfigParams());
+        private static SettingParamsV1 SETTING2 = new SettingParamsV1("2", new ConfigParams(new Dictionary<string, string>(){
+                    { "param", "0"}
+                }));
+
+        private  SettingsMemoryPersistence _persistence;
+    private  SettingsController _controller;
+
+    public  SettingsControllerTest()
     {
-        private SettingsController _settingsController;
+        _persistence = new  SettingsMemoryPersistence();
+        _controller = new  SettingsController();
 
-        private ISettingsPersistence _settingsPersistence;
-        private Mock<ISettingsPersistence> _moqSettingsPersistence;
-
-        private TestModel Model { get; set; }
-
-        protected override void Initialize()
-        {
-            Model = new TestModel();
-
-            var references = new References();
-            _settingsController = new SettingsController();
-
-            _moqSettingsPersistence = new Mock<ISettingsPersistence>();
-            _settingsPersistence = _moqSettingsPersistence.Object;
-
-            references.Put(new Descriptor("pip-services-settings", "persistence", "memory", "default", "1.0"), _settingsPersistence);
-            references.Put(new Descriptor("pip-services-settings", "controller", "default", "default", "1.0"), _settingsController);
-
-            _settingsController.SetReferences(references);
-        }
-
-        protected override void Uninitialize()
-        {
-        }
-        
-        [Fact]
-        public void It_Should_Create_Setting_Async()
-        {
-            var createCalled = false;
-            _moqSettingsPersistence.Setup(p => p.SetAsync(Model.CorrelationId, Model.SampleSetting1)).Callback(() => createCalled = true);
-
-            _settingsController.SetSectionAsync(Model.CorrelationId, Model.SampleSetting1.Id, Model.SampleSetting1.Parameters);
-
-            Assert.True(createCalled);
-        }
-
-        [Fact]
-        public void It_Should_Modify_Section_With_Update_Params_Async()
-        {
-            Boolean updateCalled = false;
-            _moqSettingsPersistence.Setup(p => p.ModifyAsync(Model.CorrelationId, Model.SampleSetting2.Id, Model.SampleSetting1.Parameters, null)).Callback(() => updateCalled = true);
-
-            ConfigParams result = _settingsController.ModifySectionAsync(Model.CorrelationId, Model.SampleSetting2.Id, Model.SampleSetting1.Parameters, null).Result;
-
-            Assert.True(updateCalled);
-            Assert.Equal(result, Model.SampleSetting1.Parameters);
-
-        }
-
-        [Fact]
-        public void It_Should_Modify_Section_With_Incremental_Params_Async()
-        {
-            Boolean updateCalled = false;
-            Model.SampleSetting1.Parameters["params3"] = "1";
-            _moqSettingsPersistence.Setup(p => p.ModifyAsync(Model.CorrelationId, Model.SampleSetting1.Id, Model.SampleSetting1.Parameters, null)).Callback(() => updateCalled = true);
-
-            ConfigParams result = _settingsController.ModifySectionAsync(Model.CorrelationId, Model.SampleSetting1.Id, Model.SampleSetting1.Parameters, null).Result;
-
-            Assert.True(updateCalled);
-            Assert.Equal(result["params3"], Model.SampleSetting1.Parameters["params3"]);
-
-        }
-
-
-        [Fact]
-        public void It_Should_Get_Settings_Sections_Async()
-        {
-            DataPage<SettingParamsV1> initialDataPage = new DataPage<SettingParamsV1>()
-            {
-                Data = new List<SettingParamsV1>() { Model.SampleSetting1, Model.SampleSetting2 },
-                Total = 2
-            };
-
-            _moqSettingsPersistence.Setup(p => p.GetPageByFilterAsync(Model.CorrelationId, null, null)).Returns(Task.FromResult(initialDataPage));
-
-            var resultDataPage = _settingsController.GetSectionsAsync(Model.CorrelationId, null, null).Result;
-            Assert.Equal(initialDataPage.Data.Count, resultDataPage.Data.Count);
-            Assert.Equal(initialDataPage.Total, resultDataPage.Total);
-        }
-
-        [Fact]
-        public void It_Should_Get_One_Setting_Async()
-        {
-            var id = Model.SampleSetting2.Id;
-            _moqSettingsPersistence.Setup(p => p.GetOneByIdAsync(Model.CorrelationId, id)).Returns(Task.FromResult(Model.SampleSetting2));
-
-            var resultSetting = _settingsController.GetSectionByIdAsync(Model.CorrelationId, id).Result;
-            Assert.Equal(Model.SampleSetting2.Parameters, resultSetting);
-        }
-
-        [Fact]
-        public void It_Should_Delete_Section_Async()
-        {
-            var deleteCalled = false;
-            _moqSettingsPersistence.Setup(p => p.DeleteByIdAsync(Model.CorrelationId, Model.SampleSetting1.Id)).Callback(() => deleteCalled = true);
-
-            _settingsController.DeleteSectionByIdAsync(Model.CorrelationId, Model.SampleSetting1.Id);
-
-            Assert.True(deleteCalled);
-        }
-
+        var references = References.FromTuples(
+            new Descriptor("pip-services-settings", "persistence", "memory", "default", "1.0"), _persistence
+        );
+        _controller.SetReferences(references);
     }
+
+    private static  SettingParamsV1 CreateSetting(string id, ConfigParams p)
+    {
+        SettingParamsV1 setting = new SettingParamsV1();
+            setting.Id = id;
+            setting.Parameters = p;
+        return setting;
+    }
+
+    [Fact]
+    public async Task TestCrudOperationsAsync()
+    {
+        // Create one setting
+        SettingParamsV1 setting1 = await _persistence.SetAsync(null, SETTING1);
+
+       Assert.NotNull(setting1);
+       Assert.Equal(SETTING1.Id, setting1.Id);
+
+        // Create another setting
+        SettingParamsV1 setting2 = await _persistence.SetAsync(null, SETTING2);
+
+        Assert.NotNull(setting2);
+        Assert.Equal(SETTING2.Id, setting2.Id);
+
+        // Get all settings
+        DataPage< SettingParamsV1> page = await _persistence.GetPageByFilterAsync(null, null, null);
+        Assert.NotNull(page);
+        Assert.NotNull(page.Data);
+        Assert.Equal(2, page.Data.Count);
+
+        // Update the setting
+        ConfigParams param = new ConfigParams();
+            param["newKey"] = "text";
+         SettingParamsV1 setting = await _persistence.ModifyAsync(
+            null,
+            setting1.Id,
+            param,
+            null
+        );
+
+        Assert.NotNull(setting);
+        Assert.Equal(setting1.Id, setting.Id);
+        Assert.Equal(param, setting.Parameters);
+
+        param = new ConfigParams();
+            param["param"] = "5";
+           setting = await _persistence.ModifyAsync(
+               null,
+               setting2.Id,
+               null,
+               param
+           );
+
+            Assert.NotNull(setting);
+            Assert.Equal(setting2.Id, setting.Id);
+            Assert.Equal(param, setting.Parameters);
+
+            // Delete the setting
+            await _persistence.DeleteByIdAsync(null, setting1.Id);
+
+        // Try to get deleted setting
+        setting = await _persistence.GetOneByIdAsync(null, setting1.Id);
+        Assert.Null(setting);
+    }
+
+}
 }
