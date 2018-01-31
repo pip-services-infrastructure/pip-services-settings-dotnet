@@ -23,6 +23,7 @@ namespace PipServices.Settings
             SampleSetting1 = new SettingParamsV1("1", new ConfigParams(new Dictionary<string, string>(){
                     { "param1 ", "Test English Setting"},
                     { "param2", "Test Spanish Citar"},
+                    { "param3", "0"},
                 }));
             SampleSetting2 = new SettingParamsV1("2", new ConfigParams(new Dictionary<string, string>(){
                     { "param1 ", "Test English Setting for settings with id = 2"},

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Moq;
 using Xunit;
 using PipServices.Settings.Data.Version1;
+using PipServices.Commons.Config;
 
 namespace PipServices.Settings.Logic
 {
@@ -54,9 +55,9 @@ namespace PipServices.Settings.Logic
         }
 
         [Fact]
-        public void It_Should_Update_Setting_Async()
+        public void It_Should_Modify_Section_With_Update_Params_Async()
         {
-            var updateCalled = false;
+            Boolean updateCalled = false;
             _moqSettingsPersistence.Setup(p => p.ModifyAsync(Model.CorrelationId, Model.SampleSetting2.Id, Model.SampleSetting1.Parameters, null)).Callback(() => updateCalled = true);
 
             _settingsController.ModifySectionAsync(Model.CorrelationId, Model.SampleSetting2.Id, Model.SampleSetting1.Parameters, null);
@@ -64,11 +65,25 @@ namespace PipServices.Settings.Logic
             Assert.True(updateCalled);
         }
 
+        [Fact]
+        public void It_Should_Modify_Section_With_Incremental_Params_Async()
+        {
+            Boolean updateCalled = false;
+            Model.SampleSetting1.Parameters["params3"] = "1";
+            _moqSettingsPersistence.Setup(p => p.ModifyAsync(Model.CorrelationId, Model.SampleSetting1.Id, Model.SampleSetting1.Parameters, null)).Callback(() => updateCalled = true);
+
+            ConfigParams result = _settingsController.ModifySectionAsync(Model.CorrelationId, Model.SampleSetting1.Id, Model.SampleSetting1.Parameters, null).Result;
+
+            Assert.True(updateCalled);
+            Assert.Equal(result["params3"], Model.SampleSetting1.Parameters["params3"]);
+
+        }
+
 
         [Fact]
-        public void It_Should_Get_Settings_Async()
+        public void It_Should_Get_Settings_Sections_Async()
         {
-            var initialDataPage = new DataPage<SettingParamsV1>()
+            DataPage<SettingParamsV1> initialDataPage = new DataPage<SettingParamsV1>()
             {
                 Data = new List<SettingParamsV1>() { Model.SampleSetting1, Model.SampleSetting2 },
                 Total = 2
