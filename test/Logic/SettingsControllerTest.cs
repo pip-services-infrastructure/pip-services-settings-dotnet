@@ -63,10 +63,21 @@ namespace PipServices.Settings.Logic
         Assert.NotNull(page.Data);
         Assert.Equal(2, page.Data.Count);
 
+        //Get all sections ids 
+        List<string> idsActual = new List<string>();
+            idsActual.Add(SETTING1.Id);
+            idsActual.Add(SETTING2.Id);
+        
+        DataPage<string> ids = await _controller.GetSectionIdsAsync(null, null, null);
+        Assert.NotNull(ids);
+        Assert.NotNull(ids.Data);
+        Assert.Equal(2, page.Data.Count);
+        Assert.Equal(idsActual, ids.Data);
+
         // Update the setting
         ConfigParams param = new ConfigParams();
-            param["newKey"] = "text";
-         SettingParamsV1 setting = await _persistence.ModifyAsync(
+        param["newKey"] = "text";
+        SettingParamsV1 setting = await _persistence.ModifyAsync(
             null,
             setting1.Id,
             param,
