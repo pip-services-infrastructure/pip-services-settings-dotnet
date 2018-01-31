@@ -9,7 +9,7 @@ using PipServices.Commons.Config;
 
 namespace PipServices.Settings.Persistence
 {
-    public interface ISettingsPersistence
+    public interface ISettingsPersistence : IGetter<SettingParamsV1, string>, IWriter<SettingParamsV1, string>
     {
         Task<DataPage<SettingParamsV1>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging);
 

@@ -81,6 +81,10 @@ namespace PipServices.Settings.Logic
             return settings.Parameters;
         }
 
-        
+        public Task<SettingParamsV1> DeleteSectionByIdAsync(string correlationId, string id)
+        {
+            return _persistence.DeleteByIdAsync(correlationId, id);
+        }
+
     }
 }

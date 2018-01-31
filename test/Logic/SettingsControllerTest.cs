@@ -90,5 +90,17 @@ namespace PipServices.Settings.Logic
             var resultSetting = _settingsController.GetSectionByIdAsync(Model.CorrelationId, id).Result;
             Assert.Equal(Model.SampleSetting2.Parameters, resultSetting);
         }
+
+        [Fact]
+        public void It_Should_Delete_Section_Async()
+        {
+            var deleteCalled = false;
+            _moqSettingsPersistence.Setup(p => p.DeleteByIdAsync(Model.CorrelationId, Model.SampleSetting1.Id)).Callback(() => deleteCalled = true);
+
+            _settingsController.DeleteSectionByIdAsync(Model.CorrelationId, Model.SampleSetting1.Id);
+
+            Assert.True(deleteCalled);
+        }
+
     }
-    }
+}
