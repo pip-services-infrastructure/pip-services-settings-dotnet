@@ -78,20 +78,20 @@ namespace PipServices.Settings.Logic
         Assert.Equal(param, setting.Parameters);
 
         param = new ConfigParams();
-            param["param"] = "5";
-           setting = await _persistence.ModifyAsync(
-               null,
-               setting2.Id,
-               null,
-               param
-           );
+        param["param"] = "5";
+        setting = await _persistence.ModifyAsync(
+            null,
+            setting2.Id,
+            null,
+            param
+        );
 
-            Assert.NotNull(setting);
-            Assert.Equal(setting2.Id, setting.Id);
-            Assert.Equal(param, setting.Parameters);
+        Assert.NotNull(setting);
+        Assert.Equal(setting2.Id, setting.Id);
+        Assert.Equal(param, setting.Parameters);
 
-            // Delete the setting
-            await _persistence.DeleteByIdAsync(null, setting1.Id);
+        // Delete the setting
+        await _persistence.DeleteByIdAsync(null, setting1.Id);
 
         // Try to get deleted setting
         setting = await _persistence.GetOneByIdAsync(null, setting1.Id);

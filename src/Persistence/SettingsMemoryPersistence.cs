@@ -71,8 +71,8 @@ namespace PipServices.Settings.Persistence
             {
                 foreach (var key in updateParams)
                 {
-                    if (updateParams.GetType().GetProperty(key.Key) != null)
-                        item.Parameters[key.Key] = updateParams[key.Value];
+                    //if (updateParams.GetType().GetProperty(key.Key) != null)
+                    item.Parameters[key.Key] = key.Value;
                 }
             }
 
@@ -80,14 +80,11 @@ namespace PipServices.Settings.Persistence
             if (incrementParams != null)
             {
                 foreach (var key in incrementParams)
-                {
-                    if (incrementParams.GetType().GetProperty(key.Key) != null)
-                    {
-                        long increment = Convert.ToInt64(incrementParams[key.Key], 0);
-                        long value = Convert.ToInt64(item.Parameters[key.Key], 0);
-                        value += increment;
-                        item.Parameters[key.Key] = value.ToString();
-                    }
+                {  
+                    long increment = Convert.ToInt64(key.Value);
+                    long value = Convert.ToInt64(item.Parameters[key.Key]);
+                    value += increment;
+                    item.Parameters[key.Key] = value.ToString();
                 }
             }
 
