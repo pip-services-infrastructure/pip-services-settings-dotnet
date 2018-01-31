@@ -3,97 +3,49 @@ using PipServices.Commons.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace PipServices.Settings.Persistence
 {
-    public class SettingsMongoDbPersistenceTest : AbstractTest
+    public class SettingsMongoDbPersistenceTest : IDisposable
     {
-        private TestModel Model { get; set; }
-        private SettingsMongoDbPersistence settingsPersistence;
+        private SettingsMongoDbPersistence _persistence;
+        private SettingsPersistenceFixture _fixture;
 
         public SettingsMongoDbPersistenceTest()
         {
-        }
+            var MONGODB_COLLECTION = Environment.GetEnvironmentVariable("MONGODB_COLLECTION") ?? "test_quotes";
+            var MONGODB_SERVICE_URI = Environment.GetEnvironmentVariable("MONGODB_SERVICE_URI") ?? "mongodb://localhost:27017/test";
 
-        protected override void Initialize()
-        {
-            Model = new TestModel();
-
-            //var config = YamlConfigReader.ReadConfig(null, "./config/test_connections.yaml", null);
-            //var dbConfig = config.GetSection("mongodb");
-
-            var mongoUri = Environment.GetEnvironmentVariable("MONGO_URI");
-            var mongoHost = Environment.GetEnvironmentVariable("MONGO_HOST") ?? "localhost";
-            var mongoPort = Environment.GetEnvironmentVariable("MONGO_PORT") ?? "27017";
-            var mongoDatabase = Environment.GetEnvironmentVariable("MONGO_DB") ?? "test";
-
-            if (mongoUri == null && mongoHost == null)
-                return;
-
-            var dbConfig = ConfigParams.FromTuples(
-                "connection.uri", mongoUri,
-                "connection.host", mongoHost,
-                "connection.port", mongoPort,
-                "connection.database", mongoDatabase
+            var config = ConfigParams.FromTuples(
+                "collection", MONGODB_COLLECTION,
+                "connection.uri", MONGODB_SERVICE_URI
             );
 
-            settingsPersistence = new SettingsMongoDbPersistence();
-            settingsPersistence.Configure(dbConfig);
+            _persistence = new SettingsMongoDbPersistence();
+            _persistence.Configure(config);
+            _persistence.OpenAsync(null).Wait();
+            _persistence.ClearAsync(null).Wait();
 
-            settingsPersistence.OpenAsync(null).Wait();
-            settingsPersistence.ClearAsync(null).Wait();
+            _fixture = new SettingsPersistenceFixture(_persistence);
         }
 
-        protected override void Uninitialize()
+        public void Dispose()
         {
+            _persistence.CloseAsync(null).Wait();
         }
 
-       
-        //[Fact]
-        public void It_Should_Create_Async()
+        [Fact]
+        public async Task TestMongoDbCrudOperationsAsync()
         {
-            settingsPersistence.CreateAsync(Model.CorrelationId, Model.SampleSetting1).Wait();
-            var setting = settingsPersistence.GetOneByIdAsync(Model.CorrelationId, Model.SampleSetting1.Id).Result;
-            Assert.Equal(Model.SampleSetting1, setting);
+            await _fixture.TestCrudOperationsAsync();
         }
 
-        //[Fact]
-        public void It_Should_Get_Page_Async_By_Search_Filter()
+        [Fact]
+        public async Task TestMemoryGetByFilterAsync()
         {
-            var filter = new FilterParams
-            {
-                { "search", "test" }
-            };
-
-            CreateTestSettings(settingsPersistence);
-
-            var result = settingsPersistence.GetPageByFilterAsync(Model.CorrelationId, filter, null).Result;
-
-            Assert.Equal(4, result.Data.Count);
-        }
-     
-
-       
-       // [Fact]
-        public void It_Should_Get_Page_Async_By_Null_Search_Filter()
-        {
-            var filter = new FilterParams
-            {
-                { "search", string.Empty }
-            };
-
-            CreateTestSettings(settingsPersistence);
-
-            var result = settingsPersistence.GetPageByFilterAsync(Model.CorrelationId, filter, null).Result;
-
-            Assert.Equal(4, result.Data.Count);
-        }
-
-        private void CreateTestSettings(ISettingsPersistence settingsPersistence)
-        {
-            settingsPersistence.SetAsync(Model.CorrelationId, Model.SampleSetting1).Wait();
-            settingsPersistence.SetAsync(Model.CorrelationId, Model.SampleSetting2).Wait();
+            await _fixture.TestGetByFilterAsync();
         }
     }
 }
