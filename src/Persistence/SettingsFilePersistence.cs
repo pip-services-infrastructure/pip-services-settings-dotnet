@@ -9,11 +9,11 @@ namespace PipServices.Settings.Persistence
 {
     class SettingsFilePersistence : SettingsMemoryPersistence
     {
-        protected JsonFilePersister<SettingParamsV1> _persister;
+        protected JsonFilePersister<SettingSectionV1> _persister;
 
         public SettingsFilePersistence()
         {
-            _persister = new JsonFilePersister<SettingParamsV1>();
+            _persister = new JsonFilePersister<SettingSectionV1>();
             _loader = _persister;
             _saver = _persister;
         }

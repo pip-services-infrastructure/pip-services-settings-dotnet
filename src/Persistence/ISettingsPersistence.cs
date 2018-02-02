@@ -9,14 +9,14 @@ using PipServices.Commons.Config;
 
 namespace PipServices.Settings.Persistence
 {
-    public interface ISettingsPersistence : IGetter<SettingParamsV1, string>, IWriter<SettingParamsV1, string>
+    public interface ISettingsPersistence : IGetter<SettingSectionV1, string>, IWriter<SettingSectionV1, string>
     {
-        Task<DataPage<SettingParamsV1>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging);
+        Task<DataPage<SettingSectionV1>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging);
 
-        Task<SettingParamsV1> GetOneByIdAsync(string correlationId, string id);
+        Task<SettingSectionV1> GetOneByIdAsync(string correlationId, string id);
     
-        Task<SettingParamsV1> SetAsync(string correlationId, SettingParamsV1 item);
+        Task<SettingSectionV1> SetAsync(string correlationId, SettingSectionV1 item);
 
-        Task<SettingParamsV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams);
+        Task<SettingSectionV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams);
     }
 }

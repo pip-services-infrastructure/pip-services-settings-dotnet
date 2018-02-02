@@ -41,7 +41,7 @@ namespace PipServices.Settings.Logic
 
         public async Task<DataPage<string>> GetSectionIdsAsync(string correlationId, FilterParams filter, PagingParams paging)
         {
-            DataPage<SettingParamsV1> page = await _persistence.GetPageByFilterAsync(correlationId, filter, paging);
+            DataPage<SettingSectionV1> page = await _persistence.GetPageByFilterAsync(correlationId, filter, paging);
             if (page != null)
             {
 
@@ -52,14 +52,14 @@ namespace PipServices.Settings.Logic
             return null;   
         }
 
-        public async Task<DataPage<SettingParamsV1>> GetSectionsAsync(string correlationId, FilterParams filter, PagingParams paging)
+        public async Task<DataPage<SettingSectionV1>> GetSectionsAsync(string correlationId, FilterParams filter, PagingParams paging)
         {
             return await _persistence.GetPageByFilterAsync(correlationId, filter, paging);
         }
 
         public async Task<ConfigParams> GetSectionByIdAsync(string correlationId, string id)
         {
-            SettingParamsV1 item = await _persistence.GetOneByIdAsync(correlationId, id);
+            SettingSectionV1 item = await _persistence.GetOneByIdAsync(correlationId, id);
 
             ConfigParams parameters = item != null ? item.Parameters : null;
             parameters = parameters != null ? parameters : new ConfigParams();
@@ -70,18 +70,18 @@ namespace PipServices.Settings.Logic
 
         public async Task<ConfigParams> SetSectionAsync(string correlationId, string id, ConfigParams parameters)
         {
-            SettingParamsV1 item = new SettingParamsV1(id, parameters);
-            SettingParamsV1 settings = await _persistence.SetAsync(correlationId, item);
+            SettingSectionV1 item = new SettingSectionV1(id, parameters);
+            SettingSectionV1 settings = await _persistence.SetAsync(correlationId, item);
             return settings.Parameters;
         }
 
         public async Task<ConfigParams> ModifySectionAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
         {
-            SettingParamsV1 settings = await _persistence.ModifyAsync(correlationId, id, updateParams, incrementParams);
+            SettingSectionV1 settings = await _persistence.ModifyAsync(correlationId, id, updateParams, incrementParams);
             return settings.Parameters;
         }
 
-        public Task<SettingParamsV1> DeleteSectionByIdAsync(string correlationId, string id)
+        public Task<SettingSectionV1> DeleteSectionByIdAsync(string correlationId, string id)
         {
             return _persistence.DeleteByIdAsync(correlationId, id);
         }

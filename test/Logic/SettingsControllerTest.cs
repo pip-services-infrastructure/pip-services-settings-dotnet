@@ -15,8 +15,8 @@ using PipServices.Commons.Config;
 namespace PipServices.Settings.Logic
 {
     public class SettingsControllerTest {
-        private static SettingParamsV1 SETTING1 = CreateSetting("1", new ConfigParams());
-        private static SettingParamsV1 SETTING2 = new SettingParamsV1("2", new ConfigParams(new Dictionary<string, string>(){
+        private static SettingSectionV1 SETTING1 = CreateSetting("1", new ConfigParams());
+        private static SettingSectionV1 SETTING2 = new SettingSectionV1("2", new ConfigParams(new Dictionary<string, string>(){
                     { "param", "0"}
                 }));
 
@@ -34,9 +34,9 @@ namespace PipServices.Settings.Logic
         _controller.SetReferences(references);
     }
 
-    private static  SettingParamsV1 CreateSetting(string id, ConfigParams p)
+    private static  SettingSectionV1 CreateSetting(string id, ConfigParams p)
     {
-        SettingParamsV1 setting = new SettingParamsV1();
+        SettingSectionV1 setting = new SettingSectionV1();
             setting.Id = id;
             setting.Parameters = p;
         return setting;
@@ -46,19 +46,19 @@ namespace PipServices.Settings.Logic
     public async Task TestCrudOperationsAsync()
     {
         // Create one setting
-        SettingParamsV1 setting1 = await _persistence.SetAsync(null, SETTING1);
+        SettingSectionV1 setting1 = await _persistence.SetAsync(null, SETTING1);
 
        Assert.NotNull(setting1);
        Assert.Equal(SETTING1.Id, setting1.Id);
 
         // Create another setting
-        SettingParamsV1 setting2 = await _persistence.SetAsync(null, SETTING2);
+        SettingSectionV1 setting2 = await _persistence.SetAsync(null, SETTING2);
 
         Assert.NotNull(setting2);
         Assert.Equal(SETTING2.Id, setting2.Id);
 
         // Get all settings
-        DataPage< SettingParamsV1> page = await _persistence.GetPageByFilterAsync(null, null, null);
+        DataPage< SettingSectionV1> page = await _persistence.GetPageByFilterAsync(null, null, null);
         Assert.NotNull(page);
         Assert.NotNull(page.Data);
         Assert.Equal(2, page.Data.Count);
@@ -77,7 +77,7 @@ namespace PipServices.Settings.Logic
         // Update the setting
         ConfigParams param = new ConfigParams();
         param["newKey"] = "text";
-        SettingParamsV1 setting = await _persistence.ModifyAsync(
+        SettingSectionV1 setting = await _persistence.ModifyAsync(
             null,
             setting1.Id,
             param,

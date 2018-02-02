@@ -7,18 +7,18 @@ using System.Runtime.Serialization;
 namespace PipServices.Settings.Data.Version1
 {
     [DataContract]
-    public class SettingParamsV1 : IStringIdentifiable
+    public class SettingSectionV1 : IStringIdentifiable
     {
-        public SettingParamsV1() { }
+        public SettingSectionV1() { }
             
-        public SettingParamsV1(string id, ConfigParams param)
+        public SettingSectionV1(string id, ConfigParams param)
         {
             this.Id = id;
             this.Parameters = param;
             this.UpdateTime = new DateTime();
         }
 
-        public SettingParamsV1(string id)
+        public SettingSectionV1(string id)
         {
             this.Id = id;
             this.Parameters = new ConfigParams();

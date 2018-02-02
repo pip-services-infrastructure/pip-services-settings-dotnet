@@ -14,10 +14,10 @@ namespace PipServices.Settings.Logic
     {
         CommandSet GetCommandSet();
         Task<DataPage<string>> GetSectionIdsAsync(string correlationId, FilterParams filter, PagingParams paging);
-        Task<DataPage<SettingParamsV1>> GetSectionsAsync(string correlationId, FilterParams filter, PagingParams paging);
+        Task<DataPage<SettingSectionV1>> GetSectionsAsync(string correlationId, FilterParams filter, PagingParams paging);
         Task<ConfigParams> GetSectionByIdAsync(string correlationId, string id);
         Task<ConfigParams> SetSectionAsync(string correlationId, string id, ConfigParams parameters);
-        Task<SettingParamsV1> DeleteSectionByIdAsync(string correlationId, string id);
+        Task<SettingSectionV1> DeleteSectionByIdAsync(string correlationId, string id);
         Task<ConfigParams> ModifySectionAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams);
     }
 }

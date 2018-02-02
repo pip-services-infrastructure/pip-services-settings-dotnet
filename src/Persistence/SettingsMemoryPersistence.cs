@@ -11,21 +11,21 @@ using PipServices.Commons.Data;
 
 namespace PipServices.Settings.Persistence
 {
-    public class SettingsMemoryPersistence : IdentifiableMemoryPersistence<SettingParamsV1, string>, ISettingsPersistence
+    public class SettingsMemoryPersistence : IdentifiableMemoryPersistence<SettingSectionV1, string>, ISettingsPersistence
     {
 
         public SettingsMemoryPersistence() : base() { }
 
-        private bool MatchSearch(SettingParamsV1 item, string search)
+        private bool MatchSearch(SettingSectionV1 item, string search)
         {
             return (item.Id != null && item.Id.Contains(search)) ? true : false;
         }
 
         public int ItemsCount { get { return _items.Count; } }
 
-        private IList<Func<SettingParamsV1, bool>> ComposeFilter(FilterParams filter)
+        private IList<Func<SettingSectionV1, bool>> ComposeFilter(FilterParams filter)
         {
-            var result = new List<Func<SettingParamsV1, bool>>();
+            var result = new List<Func<SettingSectionV1, bool>>();
 
             filter = filter ?? new FilterParams();
 
@@ -38,12 +38,12 @@ namespace PipServices.Settings.Persistence
             return result;
         }
 
-        public async Task<DataPage<SettingParamsV1>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging)
+        public async Task<DataPage<SettingSectionV1>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging)
         {
             return await base.GetPageByFilterAsync(correlationId, ComposeFilter(filter), paging);
         }
 
-        public async Task<SettingParamsV1> GetOneByIdAsync(string correlationId, string id)
+        public async Task<SettingSectionV1> GetOneByIdAsync(string correlationId, string id)
         {
             FilterParams filter = new FilterParams();
             filter.Add("id", id);
@@ -51,20 +51,20 @@ namespace PipServices.Settings.Persistence
             return await base.GetOneRandomAsync(correlationId, ComposeFilter(filter));
         }
 
-        public async Task<SettingParamsV1> SetAync(string correlationId, SettingParamsV1 item)
+        public async Task<SettingSectionV1> SetAync(string correlationId, SettingSectionV1 item)
         {
             item.UpdateTime = new DateTime();
 
             return await base.SetAsync(correlationId, item);
         }
 
-        public async Task<SettingParamsV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
+        public async Task<SettingSectionV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
         {
 
             int index = this._items.FindIndex(x => x.Id == id);
 
-            SettingParamsV1 item = index >= 0
-                ? this._items[index] : new SettingParamsV1(id);
+            SettingSectionV1 item = index >= 0
+                ? this._items[index] : new SettingSectionV1(id);
 
             // Update parameters
             if (updateParams != null)

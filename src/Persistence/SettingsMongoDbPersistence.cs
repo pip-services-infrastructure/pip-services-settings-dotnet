@@ -10,11 +10,11 @@ using PipServices.Settings.Data.Version1;
 
 namespace PipServices.Settings.Persistence
 {
-    public class SettingsMongoDbPersistence : IdentifiableMongoDbPersistence<SettingParamsV1, string>, ISettingsPersistence
+    public class SettingsMongoDbPersistence : IdentifiableMongoDbPersistence<SettingSectionV1, string>, ISettingsPersistence
     {
         public SettingsMongoDbPersistence() : base("settings") { }
 
-        private FilterDefinition<SettingParamsV1> ComposeFilter(FilterParams filterParams)
+        private FilterDefinition<SettingSectionV1> ComposeFilter(FilterParams filterParams)
         {
             filterParams = filterParams ?? new FilterParams();
             string search = filterParams.GetAsNullableString("search");
@@ -22,7 +22,7 @@ namespace PipServices.Settings.Persistence
             string id = filterParams.GetAsNullableString("id");
 
 
-            var builder = Builders<SettingParamsV1>.Filter;
+            var builder = Builders<SettingSectionV1>.Filter;
             var filter = builder.Empty;
 
             if (id != null) filter &= builder.Eq(q => q.Id, id);
@@ -31,20 +31,20 @@ namespace PipServices.Settings.Persistence
         }
 
         
-        public async Task<SettingParamsV1> GetOneByIdAsync(string correlationId, string id)
+        public async Task<SettingSectionV1> GetOneByIdAsync(string correlationId, string id)
         {
             return await base.GetOneByIdAsync(correlationId, id);
         }
 
-        public async Task<DataPage<SettingParamsV1>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging)
+        public async Task<DataPage<SettingSectionV1>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging)
         {
             return await base.GetPageByFilterAsync(correlationId, ComposeFilter(filter), paging);
         }
 
-        public async Task<SettingParamsV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
+        public async Task<SettingSectionV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
         {
 
-            SettingParamsV1 item = new SettingParamsV1(id);
+            SettingSectionV1 item = new SettingSectionV1(id);
             item.UpdateTime = new DateTime();
 
             // Update parameters
@@ -54,7 +54,7 @@ namespace PipServices.Settings.Persistence
                 {
                     item.Parameters[key.Key] = key.Value;
                 }
-                return this._collection.FindOneAndUpdate<SettingParamsV1>(e => e.Id == id, Builders<SettingParamsV1>.Update.Set(e => e.Parameters, item.Parameters));
+                return this._collection.FindOneAndUpdate<SettingSectionV1>(e => e.Id == id, Builders<SettingSectionV1>.Update.Set(e => e.Parameters, item.Parameters));
             }
             else { 
                 foreach (var key in incrementParams)
@@ -63,11 +63,11 @@ namespace PipServices.Settings.Persistence
                     item.Parameters[key.Key] = increment.ToString();
 
                 }
-                return this._collection.FindOneAndUpdate<SettingParamsV1>(e => e.Id == id, Builders<SettingParamsV1>.Update.Set(e => e.Parameters, item.Parameters));
+                return this._collection.FindOneAndUpdate<SettingSectionV1>(e => e.Id == id, Builders<SettingSectionV1>.Update.Set(e => e.Parameters, item.Parameters));
             }
         }
 
-        public async Task<SettingParamsV1> SetAsync(string correlationId, SettingParamsV1 item)
+        public async Task<SettingSectionV1> SetAsync(string correlationId, SettingSectionV1 item)
         {
             item.UpdateTime = new DateTime();
             return await base.SetAsync(correlationId, item);
