@@ -52,24 +52,19 @@ namespace PipServices.Settings.Persistence
             {
                 foreach (var key in updateParams)
                 {
-                   item.Parameters[key.Key] = key.Value;
+                    item.Parameters[key.Key] = key.Value;
                 }
+                return this._collection.FindOneAndUpdate<SettingParamsV1>(e => e.Id == id, Builders<SettingParamsV1>.Update.Set(e => e.Parameters, item.Parameters));
             }
-
-            // Increment parameters
-            if (incrementParams != null)
-            {
+            else { 
                 foreach (var key in incrementParams)
                 {
                     long increment = Convert.ToInt64(key.Value);
-                    long value = Convert.ToInt64(item.Parameters[key.Key]);
-                    value += increment;
-                    item.Parameters[key.Key] = value.ToString();
-                    
-                }
-            }
+                    item.Parameters[key.Key] = increment.ToString();
 
-            return await base.UpdateAsync(correlationId, item);
+                }
+                return this._collection.FindOneAndUpdate<SettingParamsV1>(e => e.Id == id, Builders<SettingParamsV1>.Update.Set(e => e.Parameters, item.Parameters));
+            }
         }
 
         public async Task<SettingParamsV1> SetAsync(string correlationId, SettingParamsV1 item)
