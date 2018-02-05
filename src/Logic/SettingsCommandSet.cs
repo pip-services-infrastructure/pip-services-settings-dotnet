@@ -111,13 +111,13 @@ namespace PipServices.Settings.Logic
 
                 new ObjectSchema()
                     .WithRequiredProperty("id", TypeCode.String)
-                    .WithOptionalProperty("update_parameters", null)
-                    .WithOptionalProperty("increment_parameters", null),
+                    .WithOptionalProperty("update_params", null)
+                    .WithOptionalProperty("increment_params", null),
                 async (correlationId, args) =>
                 {
                     string id = args.GetAsNullableString("id");
-                    ConfigParams updateParams = ConfigParams.FromValue(args.GetAsObject("update_parameters"));
-                    ConfigParams incrementParams = ConfigParams.FromValue(args.GetAsObject("increment_parameters"));
+                    ConfigParams updateParams = ConfigParams.FromValue(args.GetAsObject("update_params"));
+                    ConfigParams incrementParams = ConfigParams.FromValue(args.GetAsObject("increment_params"));
                     return await _logic.ModifySectionAsync(correlationId, id, updateParams, incrementParams);
                 }
             );

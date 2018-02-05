@@ -105,14 +105,14 @@ namespace PipServices.Settings.Services
             // Update the setting
             ConfigParams updateParams = new ConfigParams();
             updateParams["newKey"] = "text";
-            param = await Invoke<ConfigParams>("/settings/modify_section", new { id = SETTING1.Id, update_parameters = updateParams });
+            param = await Invoke<ConfigParams>("/settings/modify_section", new { id = SETTING1.Id, update_params = updateParams });
            
             Assert.NotNull(param);
             Assert.Equal(updateParams, param);
             
             updateParams = new ConfigParams();
             updateParams["param"] = "5";
-            param = await Invoke<ConfigParams>("/settings/modify_section", new { id = SETTING2.Id, increment_parameters = updateParams });
+            param = await Invoke<ConfigParams>("/settings/modify_section", new { id = SETTING2.Id, increment_params = updateParams });
 
             Assert.NotNull(param);
             Assert.Equal(updateParams, param);
