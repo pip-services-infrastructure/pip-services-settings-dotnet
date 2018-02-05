@@ -61,9 +61,8 @@ namespace PipServices.Settings.Persistence
                 {
                     long increment = Convert.ToInt64(key.Value);
                     item.Parameters[key.Key] = increment.ToString();
-
                 }
-                return this._collection.FindOneAndUpdate<SettingSectionV1>(e => e.Id == id, Builders<SettingSectionV1>.Update.Set(e => e.Parameters, item.Parameters));
+                return this._collection.FindOneAndUpdate<SettingSectionV1>(e => e.Id == id, Builders<SettingSectionV1>.Update.Inc(e => e.Parameters, item.Parameters));
             }
         }
 
