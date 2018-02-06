@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Driver;
@@ -41,7 +42,7 @@ namespace PipServices.Settings.Persistence
             return await base.GetPageByFilterAsync(correlationId, ComposeFilter(filter), paging);
         }
 
-        public async Task<SettingSectionV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
+        public async Task<SettingSectionV1> ModifyAsync(string correlationId, string id, Dictionary<string, dynamic> updateParams, Dictionary<string, dynamic> incrementParams)
         {
 
             SettingSectionV1 item = new SettingSectionV1(id);
@@ -54,16 +55,33 @@ namespace PipServices.Settings.Persistence
                 {
                     item.Parameters[key.Key] = key.Value;
                 }
-                return this._collection.FindOneAndUpdate<SettingSectionV1>(e => e.Id == id, Builders<SettingSectionV1>.Update.Set(e => e.Parameters, item.Parameters));
+                this._collection.FindOneAndUpdate<SettingSectionV1>(e => e.Id == id, Builders<SettingSectionV1>.Update.Set(e => e.Parameters, item.Parameters));
+
+                return await GetOneByIdAsync(correlationId, id);
             }
-            else { 
-                foreach (var key in incrementParams)
-                {
-                    long increment = Convert.ToInt64(key.Value);
-                    item.Parameters[key.Key] = increment.ToString();
-                }
-                return this._collection.FindOneAndUpdate<SettingSectionV1>(e => e.Id == id, Builders<SettingSectionV1>.Update.Inc(e => e.Parameters, item.Parameters));
+            else {
+                var keys = incrementParams.Keys;
+                var update = getIncUpdate(incrementParams);
+                
+                if (update != null) this._collection.FindOneAndUpdate<SettingSectionV1>(e => e.Id == id, update);
+
+                return await GetOneByIdAsync(correlationId, id);
             }
+        }
+
+        private UpdateDefinition<SettingSectionV1> getIncUpdate(Dictionary<string, dynamic> incrementParams) {
+            if (incrementParams.Count == 0) return null;
+
+            var list = incrementParams.ToList();
+            var update = Builders<SettingSectionV1>.Update.Inc("Parameters." + list[0].Key, Convert.ToInt64(list[0].Value));
+            var i = 1;
+            while (list.Count > i) {
+                update = update.Inc("Parameters." + list[i].Key, Convert.ToInt64(list[i].Value));
+                i++;
+            }
+
+            return update;
+
         }
 
         public async Task<SettingSectionV1> SetAsync(string correlationId, SettingSectionV1 item)

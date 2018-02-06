@@ -58,7 +58,7 @@ namespace PipServices.Settings.Persistence
             return await base.SetAsync(correlationId, item);
         }
 
-        public async Task<SettingSectionV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
+        public async Task<SettingSectionV1> ModifyAsync(string correlationId, string id, Dictionary<string, dynamic> updateParams, Dictionary<string, dynamic> incrementParams)
         {
 
             int index = this._items.FindIndex(x => x.Id == id);
@@ -83,7 +83,7 @@ namespace PipServices.Settings.Persistence
                     long increment = Convert.ToInt64(key.Value);
                     long value = Convert.ToInt64(item.Parameters[key.Key]);
                     value += increment;
-                    item.Parameters[key.Key] = value.ToString();
+                    item.Parameters[key.Key] = value;
                 }
             }
 

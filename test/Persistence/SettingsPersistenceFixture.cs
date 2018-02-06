@@ -13,10 +13,10 @@ namespace PipServices.Settings.Persistence
 {
     public class SettingsPersistenceFixture
     {
-        private static SettingSectionV1 SETTING1 = new SettingSectionV1("1", new ConfigParams());
-        private static SettingSectionV1 SETTING2 = new SettingSectionV1("2", new ConfigParams(new Dictionary<string, string>(){
-                    { "param", "0"}
-                }));
+        private static SettingSectionV1 SETTING1 = new SettingSectionV1("1", new Dictionary<string, dynamic>());
+        private static SettingSectionV1 SETTING2 = new SettingSectionV1("2", new Dictionary<string, dynamic>(){
+                    { "param", 2}
+                });
 
         private ISettingsPersistence _persistence;
 
@@ -51,38 +51,38 @@ namespace PipServices.Settings.Persistence
             idsActual.Add(SETTING2.Id);
 
             // Update the setting
-            ConfigParams param = new ConfigParams();
-            param["newKey"] = "text";
-            SettingSectionV1 setting = await _persistence.ModifyAsync(
+            Dictionary<string, dynamic> parameters = new Dictionary<string, dynamic>();
+            parameters["newKey"] = "text";
+            SettingSectionV1 settings = await _persistence.ModifyAsync(
                 null,
                 setting1.Id,
-                param,
+                parameters,
                 null
             );
+            
+            Assert.NotNull(settings);
+            Assert.Equal(setting1.Id, settings.Id);
+            Assert.Equal(parameters, settings.Parameters);
 
-            Assert.NotNull(setting);
-            Assert.Equal(setting1.Id, setting.Id);
-            Assert.Equal(param, setting.Parameters);
-
-            param = new ConfigParams();
-            param["param"] = "5";
-            setting = await _persistence.ModifyAsync(
+            parameters = new Dictionary<string, dynamic>();
+            parameters["param"] = 5;
+            settings = await _persistence.ModifyAsync(
                 null,
                 setting2.Id,
                 null,
-                param
+                parameters
             );
 
-            Assert.NotNull(setting);
-            Assert.Equal(setting2.Id, setting.Id);
-            Assert.Equal(param, setting.Parameters);
+            Assert.NotNull(settings);
+            Assert.Equal(setting2.Id, settings.Id);
+            Assert.Equal(7, settings.Parameters["param"]);
 
             // Delete the setting
             await _persistence.DeleteByIdAsync(null, setting1.Id);
 
             // Try to get deleted setting
-            setting = await _persistence.GetOneByIdAsync(null, setting1.Id);
-            Assert.Null(setting);
+            settings = await _persistence.GetOneByIdAsync(null, setting1.Id);
+            Assert.Null(settings);
         }
 
         public async Task TestGetByFilterAsync()

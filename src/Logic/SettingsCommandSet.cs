@@ -85,7 +85,7 @@ namespace PipServices.Settings.Logic
                 async (correlationId, args) =>
                 {
                     string id = args.GetAsNullableString("id");
-                    ConfigParams parameters = ConfigParams.FromValue(args.GetAsObject("parameters"));
+                    Dictionary<string, dynamic> parameters = args.GetAsParameters("parameters");
                     return await _logic.SetSectionAsync(correlationId, id, parameters);
                 }
             );
@@ -116,8 +116,8 @@ namespace PipServices.Settings.Logic
                 async (correlationId, args) =>
                 {
                     string id = args.GetAsNullableString("id");
-                    ConfigParams updateParams = ConfigParams.FromValue(args.GetAsObject("update_params"));
-                    ConfigParams incrementParams = ConfigParams.FromValue(args.GetAsObject("increment_params"));
+                    Dictionary<string, dynamic> updateParams = args.GetAsParameters("update_params");
+                    Dictionary<string, dynamic> incrementParams = args.GetAsParameters("increment_params");
                     return await _logic.ModifySectionAsync(correlationId, id, updateParams, incrementParams);
                 }
             );

@@ -57,25 +57,28 @@ namespace PipServices.Settings.Logic
             return await _persistence.GetPageByFilterAsync(correlationId, filter, paging);
         }
 
-        public async Task<ConfigParams> GetSectionByIdAsync(string correlationId, string id)
+        public async Task<Dictionary<string, dynamic>> GetSectionByIdAsync(string correlationId, string id)
         {
             SettingSectionV1 item = await _persistence.GetOneByIdAsync(correlationId, id);
 
-            ConfigParams parameters = item != null ? item.Parameters : null;
-            parameters = parameters != null ? parameters : new ConfigParams();
+            Dictionary<string, dynamic> parameters = item != null ? item.Parameters : null;
+            parameters = parameters != null ? parameters : new Dictionary<string, dynamic>();
 
             return parameters;
 
         }
 
-        public async Task<ConfigParams> SetSectionAsync(string correlationId, string id, ConfigParams parameters)
+        public async Task<Dictionary<string, dynamic>> SetSectionAsync(string correlationId, string id, Dictionary<string, dynamic> parameters)
         {
             SettingSectionV1 item = new SettingSectionV1(id, parameters);
+            Console.WriteLine("try to create with ID: " + item.Id);
+            Console.WriteLine("_persistence: " + _persistence.);
             SettingSectionV1 settings = await _persistence.SetAsync(correlationId, item);
+            Console.WriteLine("try to set to persistence with ID: " + settings.Id);
             return settings.Parameters;
         }
 
-        public async Task<ConfigParams> ModifySectionAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams)
+        public async Task<Dictionary<string, dynamic>> ModifySectionAsync(string correlationId, string id, Dictionary<string, dynamic> updateParams, Dictionary<string, dynamic> incrementParams)
         {
             SettingSectionV1 settings = await _persistence.ModifyAsync(correlationId, id, updateParams, incrementParams);
             return settings.Parameters;

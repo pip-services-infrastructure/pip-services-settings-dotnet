@@ -15,7 +15,7 @@ namespace PipServices.Settings.Build
         public static Descriptor Descriptor = new Descriptor("pip-services-settings", "factory", "default", "default", "1.0");
         public static Descriptor MemoryPersistenceDescriptor = new Descriptor("pip-services-settings", "persistence", "memory", "*", "1.0");
         public static Descriptor FilePersistenceDescriptor = new Descriptor("pip-services-settings", "persistence", "file", "*", "1.0");
-        public static Descriptor MongoDbPersistenceDescriptor = new Descriptor("pip-services-quotes", "persistence", "mongodb", "*", "1.0");
+        public static Descriptor MongoDbPersistenceDescriptor = new Descriptor("pip-services-settings", "persistence", "mongodb", "*", "1.0");
         public static Descriptor ControllerDescriptor = new Descriptor("pip-services-settings", "controller", "default", "*", "1.0");
         public static Descriptor HttpServiceDescriptor = new Descriptor("pip-services-settings", "service", "http", "*", "1.0");
 

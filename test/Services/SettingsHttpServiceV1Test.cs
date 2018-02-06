@@ -19,10 +19,10 @@ namespace PipServices.Settings.Services
 {
     public class SettingsHttpServiceV1Test : IDisposable
     {
-        private static SettingSectionV1 SETTING1 = CreateSetting("1", new ConfigParams());
-        private static SettingSectionV1 SETTING2 = CreateSetting("2", new ConfigParams(new Dictionary<string, string>(){
-                    { "param", "0"}
-                }));
+        private static SettingSectionV1 SETTING1 = CreateSetting("1", new Dictionary<string, dynamic>());
+        private static SettingSectionV1 SETTING2 = CreateSetting("2", new Dictionary<string, dynamic>(){
+                    { "param", 0}
+                });
 
         private SettingsMemoryPersistence _persistence;
         private SettingsController _controller;
@@ -61,7 +61,7 @@ namespace PipServices.Settings.Services
             _service.CloseAsync(null).Wait();
         }
 
-        private static SettingSectionV1 CreateSetting(string id, ConfigParams p)
+        private static SettingSectionV1 CreateSetting(string id, Dictionary<string, dynamic> p)
         {
             SettingSectionV1 setting = new SettingSectionV1();
             setting.Id = id;
@@ -73,16 +73,16 @@ namespace PipServices.Settings.Services
         public async Task TestCrudOperationsAsync()
         {
             // Create one setting
-            ConfigParams param = await Invoke<ConfigParams>("/settings/set_section", new { id = SETTING1.Id, parameters = SETTING1.Parameters  });
+            Dictionary<string, dynamic> param = await Invoke<Dictionary<string, dynamic>>("/settings/set_section", new { id = SETTING1.Id, parameters = SETTING1.Parameters  });
 
             Assert.NotNull(param);
             Assert.Equal(SETTING1.Parameters, param);
 
             // Create another setting
-            param = await Invoke<ConfigParams>("/settings/set_section", new { id = SETTING2.Id, parameters = SETTING2.Parameters });
+            param = await Invoke<Dictionary<string, dynamic>>("/settings/set_section", new { id = SETTING2.Id, parameters = SETTING2.Parameters });
 
             Assert.NotNull(param);
-            Assert.Equal(SETTING2.Parameters, param);
+            Assert.Equal(SETTING2.Parameters["param"], param["param"]);
 
             // Get all settings
             DataPage<SettingSectionV1> page = await Invoke<DataPage<SettingSectionV1>>("/settings/get_sections", new { });
@@ -101,21 +101,21 @@ namespace PipServices.Settings.Services
             Assert.Equal(2, page.Data.Count);
             Assert.Equal(idsActual, ids.Data);
 
-            
+
             // Update the setting
-            ConfigParams updateParams = new ConfigParams();
+            Dictionary<string, dynamic> updateParams = new Dictionary<string, dynamic>();
             updateParams["newKey"] = "text";
-            param = await Invoke<ConfigParams>("/settings/modify_section", new { id = SETTING1.Id, update_params = updateParams });
+            param = await Invoke<Dictionary<string, dynamic>>("/settings/modify_section", new { id = SETTING1.Id, update_params = updateParams });
            
             Assert.NotNull(param);
             Assert.Equal(updateParams, param);
             
-            updateParams = new ConfigParams();
-            updateParams["param"] = "5";
-            param = await Invoke<ConfigParams>("/settings/modify_section", new { id = SETTING2.Id, increment_params = updateParams });
+            updateParams = new Dictionary<string, dynamic>();
+            updateParams["param"] = 5;
+            param = await Invoke<Dictionary<string, dynamic>>("/settings/modify_section", new { id = SETTING2.Id, increment_params = updateParams });
 
             Assert.NotNull(param);
-            Assert.Equal(updateParams, param);
+            Assert.Equal(updateParams["param"], param["param"]);
 
             // Try to get deleted setting
             SettingSectionV1 setting = await Invoke<SettingSectionV1>("/settings/delete_setting_by_id", new { id = SETTING2.Id });

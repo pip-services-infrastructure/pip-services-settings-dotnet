@@ -15,10 +15,10 @@ using PipServices.Commons.Config;
 namespace PipServices.Settings.Logic
 {
     public class SettingsControllerTest {
-        private static SettingSectionV1 SETTING1 = CreateSetting("1", new ConfigParams());
-        private static SettingSectionV1 SETTING2 = new SettingSectionV1("2", new ConfigParams(new Dictionary<string, string>(){
-                    { "param", "0"}
-                }));
+        private static SettingSectionV1 SETTING1 = CreateSetting("1", new Dictionary<string, dynamic>());
+        private static SettingSectionV1 SETTING2 = new SettingSectionV1("2", new Dictionary<string, dynamic>(){
+                    { "param", 0}
+                });
 
         private  SettingsMemoryPersistence _persistence;
     private  SettingsController _controller;
@@ -34,7 +34,7 @@ namespace PipServices.Settings.Logic
         _controller.SetReferences(references);
     }
 
-    private static  SettingSectionV1 CreateSetting(string id, ConfigParams p)
+    private static  SettingSectionV1 CreateSetting(string id, Dictionary<string, dynamic> p)
     {
         SettingSectionV1 setting = new SettingSectionV1();
             setting.Id = id;
@@ -75,7 +75,7 @@ namespace PipServices.Settings.Logic
         Assert.Equal(idsActual, ids.Data);
 
         // Update the setting
-        ConfigParams param = new ConfigParams();
+        Dictionary<string, dynamic> param = new Dictionary<string, dynamic>();
         param["newKey"] = "text";
         SettingSectionV1 setting = await _persistence.ModifyAsync(
             null,
@@ -88,7 +88,7 @@ namespace PipServices.Settings.Logic
         Assert.Equal(setting1.Id, setting.Id);
         Assert.Equal(param, setting.Parameters);
 
-        param = new ConfigParams();
+        param = new Dictionary<string, dynamic>();
         param["param"] = "5";
         setting = await _persistence.ModifyAsync(
             null,

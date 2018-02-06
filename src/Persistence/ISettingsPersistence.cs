@@ -17,6 +17,6 @@ namespace PipServices.Settings.Persistence
     
         Task<SettingSectionV1> SetAsync(string correlationId, SettingSectionV1 item);
 
-        Task<SettingSectionV1> ModifyAsync(string correlationId, string id, ConfigParams updateParams, ConfigParams incrementParams);
+        Task<SettingSectionV1> ModifyAsync(string correlationId, string id, Dictionary<string, dynamic> updateParams, Dictionary<string, dynamic> incrementParams);
     }
 }

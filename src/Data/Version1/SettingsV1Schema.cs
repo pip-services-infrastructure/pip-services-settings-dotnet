@@ -12,7 +12,7 @@ namespace PipServices.Settings.Data.Version1
         {
             WithOptionalProperty("id", TypeCode.String);
             WithOptionalProperty("update_time", TypeCode.DateTime);
-            WithOptionalProperty("parameters", null); // Config Params 
+            WithOptionalProperty("parameters", null); // Dictionary<string, dynamic>
         }
     }
 }
