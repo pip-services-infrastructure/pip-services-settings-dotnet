@@ -15,6 +15,10 @@ namespace PipServices.Settings.Persistence
         public SettingsMemoryPersistenceTest()
         {
             _persistence = new SettingsMemoryPersistence();
+
+            _persistence.OpenAsync(null).Wait();
+            _persistence.ClearAsync(null).Wait();
+
             _fixture = new SettingsPersistenceFixture(_persistence);
         }
         

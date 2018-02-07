@@ -13,8 +13,8 @@ namespace PipServices.Settings.Persistence
 {
     public class SettingsPersistenceFixture
     {
-        private static SettingSectionV1 SETTING1 = new SettingSectionV1("1", new Dictionary<string, dynamic>());
-        private static SettingSectionV1 SETTING2 = new SettingSectionV1("2", new Dictionary<string, dynamic>(){
+        private SettingSectionV1 SETTING1 = new SettingSectionV1("1", new Dictionary<string, dynamic>());
+        private SettingSectionV1 SETTING2 = new SettingSectionV1("2", new Dictionary<string, dynamic>(){
                     { "param", 2}
                 });
 
