@@ -53,7 +53,7 @@ namespace PipServices.Settings.Persistence
 
         public async Task<SettingSectionV1> SetAync(string correlationId, SettingSectionV1 item)
         {
-            item.UpdateTime = new DateTime();
+            item.UpdateTime = DateTime.UtcNow;
 
             return await base.SetAsync(correlationId, item);
         }

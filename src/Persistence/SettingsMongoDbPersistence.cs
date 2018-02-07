@@ -28,6 +28,12 @@ namespace PipServices.Settings.Persistence
 
             if (id != null) filter &= builder.Eq(q => q.Id, id);
 
+            if (!string.IsNullOrEmpty(search))
+            {
+                var searchFilter = builder.Where(q => q.Parameters.Any(l => l.Key.ToLower().Contains(search)));
+                filter &= searchFilter;
+            }
+
             return filter;
         }
 
@@ -46,7 +52,7 @@ namespace PipServices.Settings.Persistence
         {
 
             SettingSectionV1 item = new SettingSectionV1(id);
-            item.UpdateTime = new DateTime();
+            item.UpdateTime = DateTime.UtcNow;
 
             // Update parameters
             if (updateParams != null)
@@ -86,7 +92,7 @@ namespace PipServices.Settings.Persistence
 
         public async Task<SettingSectionV1> SetAsync(string correlationId, SettingSectionV1 item)
         {
-            item.UpdateTime = new DateTime();
+            item.UpdateTime = DateTime.UtcNow;
             return await base.SetAsync(correlationId, item);
         }
     }

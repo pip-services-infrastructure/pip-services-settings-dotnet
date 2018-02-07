@@ -15,14 +15,14 @@ namespace PipServices.Settings.Data.Version1
         {
             this.Id = id;
             this.Parameters = param;
-            this.UpdateTime = new DateTime();
+            this.UpdateTime = DateTime.UtcNow;
         }
 
         public SettingSectionV1(string id)
         {
             this.Id = id;
             this.Parameters = new Dictionary<string, dynamic>();
-            this.UpdateTime = new DateTime();
+            this.UpdateTime = DateTime.UtcNow;
         }
 
         [DataMember(Name = "id")]

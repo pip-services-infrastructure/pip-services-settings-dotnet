@@ -12,7 +12,6 @@ namespace PipServices.Settings.Logic
 {
     public interface ISettingsController
     {
-        CommandSet GetCommandSet();
         Task<DataPage<string>> GetSectionIdsAsync(string correlationId, FilterParams filter, PagingParams paging);
         Task<DataPage<SettingSectionV1>> GetSectionsAsync(string correlationId, FilterParams filter, PagingParams paging);
         Task<Dictionary<string, dynamic>> GetSectionByIdAsync(string correlationId, string id);
