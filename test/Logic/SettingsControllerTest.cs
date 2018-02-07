@@ -99,9 +99,9 @@ namespace PipServices.Settings.Logic
 
         Assert.NotNull(setting);
         Assert.Equal(setting2.Id, setting.Id);
-        Assert.Equal(param, setting.Parameters);
+        Assert.Equal(5, setting2.Parameters["param"]);
 
-        // Delete the setting
+            // Delete the setting
         await _persistence.DeleteByIdAsync(null, setting1.Id);
 
         // Try to get deleted setting

@@ -66,7 +66,7 @@ namespace PipServices.Settings.Persistence
 
             parameters = new Dictionary<string, dynamic>();
             parameters["param"] = 5;
-            settings = await _persistence.ModifyAsync(
+            SettingSectionV1 modify2 = await _persistence.ModifyAsync(
                 null,
                 setting2.Id,
                 null,
@@ -74,8 +74,8 @@ namespace PipServices.Settings.Persistence
             );
 
             Assert.NotNull(settings);
-            Assert.Equal(setting2.Id, settings.Id);
-            Assert.Equal(7, settings.Parameters["param"]);
+            Assert.Equal(setting2.Id, modify2.Id);
+            Assert.Equal(7, modify2.Parameters["param"]);
 
             // Delete the setting
             await _persistence.DeleteByIdAsync(null, setting1.Id);

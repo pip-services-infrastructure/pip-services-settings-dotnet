@@ -69,7 +69,7 @@ namespace PipServices.Settings.Persistence
                 update = update.Inc("Parameters." + list[i].Key, Convert.ToInt64(list[i].Value));
                 i++;
             }
-
+            
             return update;
         }
 

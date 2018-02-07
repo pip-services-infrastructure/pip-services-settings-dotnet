@@ -15,7 +15,7 @@ namespace PipServices.Settings.Persistence
 
         public SettingsMongoDbPersistenceTest()
         {
-            var MONGODB_COLLECTION = Environment.GetEnvironmentVariable("MONGODB_COLLECTION") ?? "test_quotes";
+            var MONGODB_COLLECTION = Environment.GetEnvironmentVariable("MONGODB_COLLECTION") ?? "test_settings";
             var MONGODB_SERVICE_URI = Environment.GetEnvironmentVariable("MONGODB_SERVICE_URI") ?? "mongodb://localhost:27017/test";
 
             var config = ConfigParams.FromTuples(
