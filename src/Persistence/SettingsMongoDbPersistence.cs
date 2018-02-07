@@ -60,7 +60,7 @@ namespace PipServices.Settings.Persistence
         }
 
         private UpdateDefinition<SettingSectionV1> getIncUpdate(Dictionary<string, dynamic> incrementParams, dynamic update) {
-            if (incrementParams.Count == 0) return update;
+            if (incrementParams == null || incrementParams.Count == 0) return update;
 
             var list = incrementParams.ToList();
             update = Builders<SettingSectionV1>.Update.Inc("Parameters." + list[0].Key, Convert.ToInt64(list[0].Value));
@@ -75,14 +75,14 @@ namespace PipServices.Settings.Persistence
 
         private UpdateDefinition<SettingSectionV1> getSetUpdate(Dictionary<string, dynamic> updateParams, dynamic update)
         {
-            if (updateParams.Count == 0) return update;
+            if (updateParams == null || updateParams.Count == 0) return update;
 
             var list = updateParams.ToList();
-            update = Builders<SettingSectionV1>.Update.Set("Parameters." + list[0].Key, Convert.ToInt64(list[0].Value));
+            update = Builders<SettingSectionV1>.Update.Set("Parameters." + list[0].Key, list[0].Value);
             var i = 1;
             while (list.Count > i)
             {
-                update = update.Inc("Parameters." + list[i].Key, Convert.ToInt64(list[i].Value));
+                update = update.Set("Parameters." + list[i].Key, list[i].Value);
                 i++;
             }
 
