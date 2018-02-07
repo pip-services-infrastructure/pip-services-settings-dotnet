@@ -71,10 +71,9 @@ namespace PipServices.Settings.Logic
         public async Task<Dictionary<string, dynamic>> SetSectionAsync(string correlationId, string id, Dictionary<string, dynamic> parameters)
         {
             SettingSectionV1 item = new SettingSectionV1(id, parameters);
-            Console.WriteLine("try to create with ID: " + item.Id);
-            Console.WriteLine("_persistence: " + _persistence.);
+           
             SettingSectionV1 settings = await _persistence.SetAsync(correlationId, item);
-            Console.WriteLine("try to set to persistence with ID: " + settings.Id);
+            
             return settings.Parameters;
         }
 

@@ -50,36 +50,20 @@ namespace PipServices.Settings.Persistence
 
         public async Task<SettingSectionV1> ModifyAsync(string correlationId, string id, Dictionary<string, dynamic> updateParams, Dictionary<string, dynamic> incrementParams)
         {
-
             SettingSectionV1 item = new SettingSectionV1(id);
             item.UpdateTime = DateTime.UtcNow;
+            var update = getAllUpdate(updateParams, incrementParams);
 
-            // Update parameters
-            if (updateParams != null)
-            {
-                foreach (var key in updateParams)
-                {
-                    item.Parameters[key.Key] = key.Value;
-                }
-                this._collection.FindOneAndUpdate<SettingSectionV1>(e => e.Id == id, Builders<SettingSectionV1>.Update.Set(e => e.Parameters, item.Parameters));
+            if (update != null) this._collection.FindOneAndUpdate<SettingSectionV1>(e => e.Id == id, update);
 
-                return await GetOneByIdAsync(correlationId, id);
-            }
-            else {
-                var keys = incrementParams.Keys;
-                var update = getIncUpdate(incrementParams);
-                
-                if (update != null) this._collection.FindOneAndUpdate<SettingSectionV1>(e => e.Id == id, update);
-
-                return await GetOneByIdAsync(correlationId, id);
-            }
+            return await GetOneByIdAsync(correlationId, id);
         }
 
-        private UpdateDefinition<SettingSectionV1> getIncUpdate(Dictionary<string, dynamic> incrementParams) {
-            if (incrementParams.Count == 0) return null;
+        private UpdateDefinition<SettingSectionV1> getIncUpdate(Dictionary<string, dynamic> incrementParams, dynamic update) {
+            if (incrementParams.Count == 0) return update;
 
             var list = incrementParams.ToList();
-            var update = Builders<SettingSectionV1>.Update.Inc("Parameters." + list[0].Key, Convert.ToInt64(list[0].Value));
+            update = Builders<SettingSectionV1>.Update.Inc("Parameters." + list[0].Key, Convert.ToInt64(list[0].Value));
             var i = 1;
             while (list.Count > i) {
                 update = update.Inc("Parameters." + list[i].Key, Convert.ToInt64(list[i].Value));
@@ -87,7 +71,31 @@ namespace PipServices.Settings.Persistence
             }
 
             return update;
+        }
 
+        private UpdateDefinition<SettingSectionV1> getSetUpdate(Dictionary<string, dynamic> updateParams, dynamic update)
+        {
+            if (updateParams.Count == 0) return update;
+
+            var list = updateParams.ToList();
+            update = Builders<SettingSectionV1>.Update.Set("Parameters." + list[0].Key, Convert.ToInt64(list[0].Value));
+            var i = 1;
+            while (list.Count > i)
+            {
+                update = update.Inc("Parameters." + list[i].Key, Convert.ToInt64(list[i].Value));
+                i++;
+            }
+
+            return update;
+        }
+
+        private UpdateDefinition<SettingSectionV1> getAllUpdate(Dictionary<string, dynamic> updateParams, Dictionary<string, dynamic> incrementParams) {
+            dynamic update = null;
+
+            update = getSetUpdate(updateParams, update);
+            update = getIncUpdate(incrementParams, update);
+
+            return update;
         }
 
         public async Task<SettingSectionV1> SetAsync(string correlationId, SettingSectionV1 item)
