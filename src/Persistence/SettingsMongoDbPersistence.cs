@@ -103,5 +103,10 @@ namespace PipServices.Settings.Persistence
             item.UpdateTime = DateTime.UtcNow;
             return await base.SetAsync(correlationId, item);
         }
+
+        void ISettingsPersistence.ClearAsync(string correlationId)
+        {
+            base.ClearAsync(correlationId);
+        }
     }
 }

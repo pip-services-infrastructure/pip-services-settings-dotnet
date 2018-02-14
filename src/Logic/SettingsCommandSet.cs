@@ -74,6 +74,19 @@ namespace PipServices.Settings.Logic
             );
         }
 
+        private ICommand MakeClearCommand()
+        {
+            return new Command(
+                "clear",
+
+                new ObjectSchema(),
+                (correlationId, args) =>
+                {
+                    return _logic.ClearAsync(correlationId);
+                }
+            );
+        }
+
         private ICommand MakeSetSectionCommand()
         {
             return new Command(

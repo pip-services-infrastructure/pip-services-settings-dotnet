@@ -58,6 +58,12 @@ namespace PipServices.Settings.Persistence
             return await base.SetAsync(correlationId, item);
         }
 
+        public async void ClearAsync(string correlationId)
+        {
+
+            await base.ClearAsync(correlationId);
+        }
+
         public async Task<SettingSectionV1> ModifyAsync(string correlationId, string id, Dictionary<string, dynamic> updateParams, Dictionary<string, dynamic> incrementParams)
         {
 

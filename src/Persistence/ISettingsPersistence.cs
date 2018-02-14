@@ -11,6 +11,8 @@ namespace PipServices.Settings.Persistence
 {
     public interface ISettingsPersistence : IGetter<SettingSectionV1, string>, IWriter<SettingSectionV1, string>
     {
+        void ClearAsync(string correlationId);
+
         Task<DataPage<SettingSectionV1>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging);
 
         Task<SettingSectionV1> GetOneByIdAsync(string correlationId, string id);

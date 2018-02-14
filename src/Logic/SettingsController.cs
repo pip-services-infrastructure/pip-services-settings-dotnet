@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace PipServices.Settings.Logic
 {
-    public class SettingsController : ISettingsController
+    public class SettingsController : ISettingsController, IReferenceable, IConfigurable, ICommandable
     {
         private static ConfigParams _defaultConfig = ConfigParams.FromTuples(
             "dependencies.persistence", "pip-services-settings:persistence:*:*:1.0"
@@ -32,6 +32,11 @@ namespace PipServices.Settings.Logic
         {
             _dependencyResolver.SetReferences(references);
             _persistence = _dependencyResolver.GetOneRequired<ISettingsPersistence>("persistence");
+        }
+
+        public void Configure(ConfigParams config)
+        {
+            _dependencyResolver.Configure(config);
         }
 
         public CommandSet GetCommandSet()
@@ -88,5 +93,10 @@ namespace PipServices.Settings.Logic
             return _persistence.DeleteByIdAsync(correlationId, id);
         }
 
+        public dynamic ClearAsync(string correlationId)
+        {
+            _persistence.ClearAsync(correlationId);
+            return true;
+        }
     }
 }
